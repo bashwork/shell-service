@@ -1,0 +1,151 @@
+[
+    {
+        "fields": {
+            "active": true, 
+            "birthday": "1985-02-14", 
+            "comments": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nibh metus, vulputate non pretium non, malesuada vel ipsum. Praesent lacus tortor, ullamcorper congue venenatis sit amet, consequat in elit. Aliquam cursus nisi ac magna varius tempus. Donec suscipit fringilla iaculis. Donec mattis mauris non odio congue id sagittis orci luctus. Aliquam sit amet erat consectetur quam ullamcorper pretium a ut dui. Curabitur id ligula libero. Aliquam luctus sem a tortor tempus pharetra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus vehicula neque et justo lobortis a tincidunt massa venenatis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Suspendisse sagittis commodo eros, eu vulputate dui fermentum a.", 
+            "firstname": "Galen", 
+            "height": 5.0999999999999996, 
+            "lastname": "Collins", 
+            "weight": 160.0
+        }, 
+        "model": "api.player", 
+        "pk": 1
+    }, 
+    {
+        "fields": {
+            "active": true, 
+            "birthday": "1984-09-08", 
+            "comments": "", 
+            "firstname": "Jen", 
+            "height": 5.9000000000000004, 
+            "lastname": "Lastname", 
+            "weight": 120.0
+        }, 
+        "model": "api.player", 
+        "pk": 3
+    }, 
+    {
+        "fields": {
+            "active": true, 
+            "birthday": "2011-09-28", 
+            "comments": "", 
+            "firstname": "Mandy", 
+            "height": 5.5999999999999996, 
+            "lastname": "Ries", 
+            "weight": 100.0
+        }, 
+        "model": "api.player", 
+        "pk": 2
+    }, 
+    {
+        "fields": {
+            "acceleration": "10", 
+            "date": "2011-09-19 12:59:37", 
+            "humidity": "10", 
+            "player": 1, 
+            "temperature": "10"
+        }, 
+        "model": "api.reading", 
+        "pk": 1
+    }, 
+    {
+        "fields": {
+            "acceleration": "11", 
+            "date": "2011-09-20 12:59:37", 
+            "humidity": "11", 
+            "player": 1, 
+            "temperature": "11"
+        }, 
+        "model": "api.reading", 
+        "pk": 2
+    }, 
+    {
+        "fields": {
+            "acceleration": "12", 
+            "date": "2011-09-21 12:59:37", 
+            "humidity": "12", 
+            "player": 1, 
+            "temperature": "12"
+        }, 
+        "model": "api.reading", 
+        "pk": 3
+    }, 
+    {
+        "fields": {
+            "acceleration": "13", 
+            "date": "2011-09-22 12:59:37", 
+            "humidity": "13", 
+            "player": 1, 
+            "temperature": "13"
+        }, 
+        "model": "api.reading", 
+        "pk": 4
+    }, 
+    {
+        "fields": {
+            "acceleration": "14", 
+            "date": "2011-09-23 12:59:37", 
+            "humidity": "14", 
+            "player": 1, 
+            "temperature": "14"
+        }, 
+        "model": "api.reading", 
+        "pk": 5
+    }, 
+    {
+        "fields": {
+            "acceleration": "15", 
+            "date": "2011-09-24 12:59:37", 
+            "humidity": "15", 
+            "player": 1, 
+            "temperature": "15"
+        }, 
+        "model": "api.reading", 
+        "pk": 6
+    }, 
+    {
+        "fields": {
+            "acceleration": "16", 
+            "date": "2011-09-25 12:59:37", 
+            "humidity": "16", 
+            "player": 1, 
+            "temperature": "16"
+        }, 
+        "model": "api.reading", 
+        "pk": 7
+    }, 
+    {
+        "fields": {
+            "acceleration": "17", 
+            "date": "2011-09-26 12:59:37", 
+            "humidity": "17", 
+            "player": 1, 
+            "temperature": "17"
+        }, 
+        "model": "api.reading", 
+        "pk": 8
+    }, 
+    {
+        "fields": {
+            "acceleration": "18", 
+            "date": "2011-09-27 12:59:37", 
+            "humidity": "18", 
+            "player": 1, 
+            "temperature": "18"
+        }, 
+        "model": "api.reading", 
+        "pk": 9
+    }, 
+    {
+        "fields": {
+            "acceleration": "19", 
+            "date": "2011-09-28 12:59:37", 
+            "humidity": "19", 
+            "player": 1, 
+            "temperature": "19"
+        }, 
+        "model": "api.reading", 
+        "pk": 10
+    }
+]
