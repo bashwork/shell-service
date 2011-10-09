@@ -1,0 +1,8 @@
+syntax: glob
+# ------------------------------------------------------------
+# shell service ignores
+# ------------------------------------------------------------
+shel-service/target/
+shel-service/project/boot/
+*.pyc
+*.swp
