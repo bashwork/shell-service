@@ -5,9 +5,10 @@
             "birthday": "1985-02-14", 
             "comments": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nibh metus, vulputate non pretium non, malesuada vel ipsum. Praesent lacus tortor, ullamcorper congue venenatis sit amet, consequat in elit. Aliquam cursus nisi ac magna varius tempus. Donec suscipit fringilla iaculis. Donec mattis mauris non odio congue id sagittis orci luctus. Aliquam sit amet erat consectetur quam ullamcorper pretium a ut dui. Curabitur id ligula libero. Aliquam luctus sem a tortor tempus pharetra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus vehicula neque et justo lobortis a tincidunt massa venenatis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Suspendisse sagittis commodo eros, eu vulputate dui fermentum a.", 
             "firstname": "Galen", 
-            "height": 5.0999999999999996, 
+            "number": 10, 
+            "height": "5.10", 
             "lastname": "Collins", 
-            "weight": 160.0
+            "weight": "160.0"
         }, 
         "model": "api.player", 
         "pk": 1
@@ -18,9 +19,10 @@
             "birthday": "1984-09-08", 
             "comments": "", 
             "firstname": "Jen", 
-            "height": 5.9000000000000004, 
+            "number": 20, 
+            "height": "5.9", 
             "lastname": "Lastname", 
-            "weight": 120.0
+            "weight": "120.0"
         }, 
         "model": "api.player", 
         "pk": 3
@@ -31,15 +33,17 @@
             "birthday": "2011-09-28", 
             "comments": "", 
             "firstname": "Mandy", 
-            "height": 5.5999999999999996, 
+            "number": 30, 
+            "height": "5.6", 
             "lastname": "Ries", 
-            "weight": 100.0
+            "weight": "100.0"
         }, 
         "model": "api.player", 
         "pk": 2
     }, 
     {
         "fields": {
+            "hits": 20, 
             "acceleration": "10", 
             "date": "2011-09-19 12:59:37", 
             "humidity": "10", 
@@ -51,6 +55,7 @@
     }, 
     {
         "fields": {
+            "hits": 20, 
             "acceleration": "11", 
             "date": "2011-09-20 12:59:37", 
             "humidity": "11", 
@@ -62,6 +67,7 @@
     }, 
     {
         "fields": {
+            "hits": 20, 
             "acceleration": "12", 
             "date": "2011-09-21 12:59:37", 
             "humidity": "12", 
@@ -73,6 +79,7 @@
     }, 
     {
         "fields": {
+            "hits": 20, 
             "acceleration": "13", 
             "date": "2011-09-22 12:59:37", 
             "humidity": "13", 
@@ -84,6 +91,7 @@
     }, 
     {
         "fields": {
+            "hits": 20, 
             "acceleration": "14", 
             "date": "2011-09-23 12:59:37", 
             "humidity": "14", 
@@ -95,6 +103,7 @@
     }, 
     {
         "fields": {
+            "hits": 20, 
             "acceleration": "15", 
             "date": "2011-09-24 12:59:37", 
             "humidity": "15", 
@@ -106,6 +115,7 @@
     }, 
     {
         "fields": {
+            "hits": 20, 
             "acceleration": "16", 
             "date": "2011-09-25 12:59:37", 
             "humidity": "16", 
@@ -117,6 +127,7 @@
     }, 
     {
         "fields": {
+            "hits": 20, 
             "acceleration": "17", 
             "date": "2011-09-26 12:59:37", 
             "humidity": "17", 
@@ -128,6 +139,7 @@
     }, 
     {
         "fields": {
+            "hits": 20, 
             "acceleration": "18", 
             "date": "2011-09-27 12:59:37", 
             "humidity": "18", 
@@ -139,6 +151,7 @@
     }, 
     {
         "fields": {
+            "hits": 20, 
             "acceleration": "19", 
             "date": "2011-09-28 12:59:37", 
             "humidity": "19", 
