@@ -2,23 +2,37 @@ from django.shortcuts import get_object_or_404
 from piston.handler import BaseHandler
 from shell.apps.api.models import Player, Reading, Contact
 
+# -------------------------------------------------------- #
+# class CsrfExemptBaseHandler(BaseHandler):
+#     """
+#     handles request that have had csrfmiddlewaretoken inserted 
+#     automatically by django's CsrfViewMiddleware
+#     
+#     """
+#     def flatten_dict(self, dct):
+#         if 'csrfmiddlewaretoken' in dct:
+#             # dct is a QueryDict and immutable
+#             dct = dct.copy()  
+#             del dct['csrfmiddlewaretoken']
+#         return super(CsrfExemptBaseHandler, self).flatten_dict(dct)
+# -------------------------------------------------------- #
+
 class PlayerHandler(BaseHandler):
     ''' This it the service interface to the
     player information.
     '''
     allowed_methods = ('GET', 'POST', 'PUT',)
     model = Player
-    exclude = ()
 
-    def read(self, request, player_id=None):
+    def read(self, request, number=None):
         ''' Returns one or more players that have been requested
 
         :param request: The request to process
-        :param player_id: The player identifier to process
+        :param number: The player number to process
         '''
         objects = Player.objects
-        if player_id:
-            return get_object_or_404(Player, id=player_id)
+        if number:
+            return objects.filter(number=number)
         else: return objects.all()
 
 class ContactHandler(BaseHandler):
@@ -27,17 +41,17 @@ class ContactHandler(BaseHandler):
     '''
     allowed_methods = ('GET', 'POST', 'PUT',)
     model = Contact
-    exclude = ()
+    exclude = ('player',)
 
-    def read(self, request, player_id=None):
+    def read(self, request, id=None, number=None):
         ''' Returns one or more players that have been requested
 
         :param request: The request to process
-        :param player_id: The player identifier to process
+        :param number: The player number to process
         '''
         objects = Contact.objects
-        if player_id:
-            return objects.filter(player__id=player_id)
+        if number:
+            return objects.filter(player__number=number)
         else: return objects.all()
 
 class ReadingHandler(BaseHandler):
@@ -48,15 +62,15 @@ class ReadingHandler(BaseHandler):
     model = Reading
     exclude = ('player',)
 
-    def read(self, request, player_id=None, count=30):
+    def read(self, request, number=None, count=30):
         ''' Returns one or more players that have been requested
 
         :param request: The request to process
-        :param player_id: The player identifier to process
+        :param number: The player number to process
         :param count: The number of readings to return
         '''
         readings = []
-        if player_id:
-            player = get_object_or_404(Player, id=player_id)
-            readings = player.readings.all()[:30]
+        if number:
+            player = Reading.objects.filter(player__number=number)
+            readings = player[0].readings.all()[:count]
         return readings
