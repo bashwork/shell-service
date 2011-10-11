@@ -11,7 +11,10 @@ class Player(models.Model):
     height    = models.DecimalField(max_digits=5, decimal_places=2)
     weight    = models.DecimalField(max_digits=5, decimal_places=2)
     active    = models.BooleanField(default=True)
+    history   = models.TextField(null=True, blank=True)
     comments  = models.TextField(null=True, blank=True)
+    phone     = models.CharField(max_length=20, null=True, blank=True)
+    address   = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         ordering = ('lastname','firstname',)
@@ -28,6 +31,23 @@ class Player(models.Model):
         '''
         return Player.objects.get(Q(firstname__istartswith=name)
             | Q(lastname__istartswith=name))
+
+class Contact(models.Model):
+    ''' Represents a player and their basic information
+    '''
+    player    = models.ForeignKey('Player', related_name='contacts')
+    firstname = models.CharField(max_length=100)
+    lastname  = models.CharField(max_length=100)
+    phone     = models.CharField(max_length=20,  null=True, blank=True)
+    altphone  = models.CharField(max_length=20,  null=True, blank=True)
+    address   = models.CharField(max_length=100, null=True, blank=True)
+    relation  = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        ordering = ('lastname','firstname',)
+
+    def __unicode__(self):
+        return "[%s] %s, %s" % (self.relation, self.lastname, self.firstname)
 
 class Reading(models.Model):
     ''' Represents a single reading for a given player

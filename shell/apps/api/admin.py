@@ -1,5 +1,5 @@
 from django.contrib import admin
-from shell.apps.api.models import Player, Reading
+from shell.apps.api.models import Player, Reading, Contact
 
 admin.site.register(Player,
     alphabet_filter = "lastname",
@@ -7,6 +7,14 @@ admin.site.register(Player,
     search_fields   = ['lastname', 'firstname'],
     list_display    = ['lastname', 'firstname', 'birthday', 'height', 'weight', 'active'],
     list_filter     = ['active'],
+    list_per_page   = 200,
+)
+admin.site.register(Player,
+    alphabet_filter = "lastname",
+    ordering        = ['lastname', 'firstname'],
+    search_fields   = ['lastname', 'firstname'],
+    list_display    = ['player', 'lastname', 'phone', 'relation'],
+    list_filter     = ['player'],
     list_per_page   = 200,
 )
 admin.site.register(Reading,
