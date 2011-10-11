@@ -9,7 +9,7 @@ admin.site.register(Player,
     list_filter     = ['active'],
     list_per_page   = 200,
 )
-admin.site.register(Player,
+admin.site.register(Contact,
     alphabet_filter = "lastname",
     ordering        = ['lastname', 'firstname'],
     search_fields   = ['lastname', 'firstname'],
