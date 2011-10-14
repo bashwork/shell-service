@@ -23,6 +23,9 @@ class PlayerHandler(BaseHandler):
     '''
     allowed_methods = ('GET', 'POST', 'PUT',)
     model = Player
+    fields = ('id', 'firstname', 'lastname', 'number', 'birthday',
+      'height', 'weight', 'history', 'comments', 'phone', 'address',
+      ('contacts', (),),)
 
     def read(self, request, number=None):
         ''' Returns one or more players that have been requested
@@ -33,7 +36,11 @@ class PlayerHandler(BaseHandler):
         objects = Player.objects
         if number:
             return objects.filter(number=number)[0]
-        else: return objects.all()
+        else: return objects.filter(active=1)
+
+    def update(self, request, *args, **kwargs):
+        import pdb;pdb.set_trace()
+        return super(PlayerHandler, self).update(request, args, kwargs)
 
 class ContactHandler(BaseHandler):
     ''' This it the service interface to the
@@ -62,15 +69,13 @@ class ReadingHandler(BaseHandler):
     model = Reading
     exclude = ('player',)
 
-    def read(self, request, number=None, count=30):
+    def read(self, request, number, count=30):
         ''' Returns one or more players that have been requested
 
         :param request: The request to process
         :param number: The player number to process
         :param count: The number of readings to return
         '''
-        readings = []
-        if number:
-            player = Reading.objects.filter(player__number=number)
-            readings = player[0].readings.all()[:count]
+        player = Reading.objects.filter(player__number=number)
+        readings = player.order_by('-date')[:count]
         return readings

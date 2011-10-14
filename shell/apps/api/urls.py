@@ -44,7 +44,6 @@ urlpatterns += patterns('',
 # ------------------------------------------------------------
 reading_handler = CsrfExemptResource(handlers.ReadingHandler)
 urlpatterns += patterns('',
-    url(r'^history/date/(?P<date>[^/]+)/?$', reading_handler),
     url(r'^player/(?P<number>[^/]+)/history/?$', reading_handler),
     url(r'^player/(?P<number>[^/]+)/history/(?P<count>[^/]+)/?$', reading_handler),
 )
