@@ -36,14 +36,14 @@ class Contact(models.Model):
     ''' Represents a player and their basic information
     '''
     RELATION_CHOICES = (
-      ('d', 'Doctor'),
-      ('m', 'Mother'),
-      ('f', 'Father'),
-      ('b', 'Brother'),
-      ('s', 'Sister'),
-      ('p', 'Spouse'),
-      ('r', 'Relative'),
-      ('o', 'Other'),
+      (0, 'Other'),
+      (1, 'Doctor'),
+      (2, 'Mother'),
+      (3, 'Father'),
+      (4, 'Brother'),
+      (5, 'Sister'),
+      (6, 'Spouse'),
+      (7, 'Relative'),
     )
     player    = models.ForeignKey('Player', related_name='contacts')
     firstname = models.CharField(max_length=100)
@@ -51,7 +51,7 @@ class Contact(models.Model):
     phone     = models.CharField(max_length=20,  null=True, blank=True)
     altphone  = models.CharField(max_length=20,  null=True, blank=True)
     address   = models.CharField(max_length=100, null=True, blank=True)
-    relation  = models.CharField(max_length=1, choices=RELATION_CHOICES)
+    relation  = models.IntegerField(max_length=1, choices=RELATION_CHOICES)
 
     class Meta:
         ordering = ('lastname','firstname',)
