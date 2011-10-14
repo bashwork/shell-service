@@ -32,7 +32,7 @@ class PlayerHandler(BaseHandler):
         '''
         objects = Player.objects
         if number:
-            return objects.filter(number=number)
+            return objects.filter(number=number)[0]
         else: return objects.all()
 
 class ContactHandler(BaseHandler):
@@ -51,7 +51,7 @@ class ContactHandler(BaseHandler):
         '''
         objects = Contact.objects
         if number:
-            return objects.filter(player__number=number)
+            return objects.filter(player__number=number)[0]
         else: return objects.all()
 
 class ReadingHandler(BaseHandler):
