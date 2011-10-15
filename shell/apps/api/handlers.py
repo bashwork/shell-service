@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from piston.utils import rc
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from piston.handler import BaseHandler
 from shell.apps.api.models import Player, Reading, Contact
 
@@ -38,6 +40,30 @@ class PlayerHandler(BaseHandler):
             return objects.filter(id=id)[0]
         else: return objects.filter(active=1)
 
+    def update(self, request, *args, **kwargs):
+        if not self.has_model():
+            return rc.NOT_IMPLEMENTED
+
+        pkfield = self.model._meta.pk.name
+
+        if pkfield not in kwargs:
+            # No pk was specified
+            return rc.BAD_REQUEST
+
+        try:
+            inst = self.queryset(request).get(pk=kwargs.get(pkfield))
+        except ObjectDoesNotExist:
+            return rc.NOT_FOUND
+        except MultipleObjectsReturned: # should never happen, since we're using a PK
+            return rc.BAD_REQUEST
+
+        attrs = self.flatten_dict(request.data)
+        for k,v in attrs.iteritems():
+            setattr( inst, k, v )
+
+        inst.save()
+        return rc.ALL_OK
+
 class ContactHandler(BaseHandler):
     ''' This it the service interface to the
     player information.
@@ -59,6 +85,30 @@ class ContactHandler(BaseHandler):
         elif pid:
             return objects.filter(player__id=pid)
         else: return objects.all()
+
+    def update(self, request, *args, **kwargs):
+        if not self.has_model():
+            return rc.NOT_IMPLEMENTED
+
+        pkfield = self.model._meta.pk.name
+
+        if pkfield not in kwargs:
+            # No pk was specified
+            return rc.BAD_REQUEST
+
+        try:
+            inst = self.queryset(request).get(pk=kwargs.get(pkfield))
+        except ObjectDoesNotExist:
+            return rc.NOT_FOUND
+        except MultipleObjectsReturned: # should never happen, since we're using a PK
+            return rc.BAD_REQUEST
+
+        attrs = self.flatten_dict(request.data)
+        for k,v in attrs.iteritems():
+            setattr( inst, k, v )
+
+        inst.save()
+        return rc.ALL_OK
 
 class ReadingHandler(BaseHandler):
     ''' This it the service interface to the
