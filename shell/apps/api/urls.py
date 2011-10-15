@@ -25,7 +25,7 @@ urlpatterns += patterns('',
     url(r'^$', documentation_view),
     url(r'^player/?$', player_handler),
     url(r'^player/search/(?P<name>[^/]+)/?$', player_handler),
-    url(r'^player/(?P<number>[^/]+)/?$', player_handler),
+    url(r'^player/(?P<id>[^/]+)/?$', player_handler),
 )
 
 # ------------------------------------------------------------
@@ -36,7 +36,7 @@ urlpatterns += patterns('',
     url(r'^$', documentation_view),
     url(r'^contact/?$', contact_handler),
     url(r'^contact/(?P<id>[^/]+)/?$', contact_handler),
-    url(r'^player/(?P<number>[^/]+)/contacts/?$', contact_handler),
+    url(r'^player/(?P<pid>[^/]+)/contacts/?$', contact_handler),
 )
 
 # ------------------------------------------------------------
@@ -44,7 +44,7 @@ urlpatterns += patterns('',
 # ------------------------------------------------------------
 reading_handler = CsrfExemptResource(handlers.ReadingHandler)
 urlpatterns += patterns('',
-    url(r'^player/(?P<number>[^/]+)/history/?$', reading_handler),
-    url(r'^player/(?P<number>[^/]+)/history/(?P<count>[^/]+)/?$', reading_handler),
+    url(r'^player/(?P<id>[^/]+)/history/?$', reading_handler),
+    url(r'^player/(?P<id>[^/]+)/history/(?P<count>[^/]+)/?$', reading_handler),
 )
 

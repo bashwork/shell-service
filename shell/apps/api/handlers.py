@@ -27,20 +27,16 @@ class PlayerHandler(BaseHandler):
       'height', 'weight', 'history', 'comments', 'phone', 'address',
       ('contacts', (),),)
 
-    def read(self, request, number=None):
+    def read(self, request, id=None):
         ''' Returns one or more players that have been requested
 
         :param request: The request to process
-        :param number: The player number to process
+        :param id: The player id to process
         '''
         objects = Player.objects
-        if number:
-            return objects.filter(number=number)[0]
+        if id:
+            return objects.filter(id=id)[0]
         else: return objects.filter(active=1)
-
-    def update(self, request, *args, **kwargs):
-        import pdb;pdb.set_trace()
-        return super(PlayerHandler, self).update(request, args, kwargs)
 
 class ContactHandler(BaseHandler):
     ''' This it the service interface to the
@@ -50,15 +46,18 @@ class ContactHandler(BaseHandler):
     model = Contact
     exclude = ('player',)
 
-    def read(self, request, id=None, number=None):
+    def read(self, request, id=None, pid=None):
         ''' Returns one or more players that have been requested
 
         :param request: The request to process
-        :param number: The player number to process
+        :param id: The contact id to process
+        :param pid: The player id to process
         '''
         objects = Contact.objects
-        if number:
-            return objects.filter(player__number=number)[0]
+        if id:
+            return objects.filter(id=id)[0]
+        elif pid:
+            return objects.filter(player__id=pid)
         else: return objects.all()
 
 class ReadingHandler(BaseHandler):
@@ -69,13 +68,13 @@ class ReadingHandler(BaseHandler):
     model = Reading
     exclude = ('player',)
 
-    def read(self, request, number, count=30):
+    def read(self, request, id, count=30):
         ''' Returns one or more players that have been requested
 
         :param request: The request to process
-        :param number: The player number to process
+        :param id: The player number to process
         :param count: The number of readings to return
         '''
-        player = Reading.objects.filter(player__number=number)
+        player = Reading.objects.filter(player__id=id)
         readings = player.order_by('-date')[:count]
         return readings
