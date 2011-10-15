@@ -51,7 +51,7 @@ class PlayerHandler(BaseHandler):
             return rc.BAD_REQUEST
 
         try:
-            inst = self.queryset(request).get(pk=kwargs.get(pkfield))
+            inst = self.model.objects.all().get(pk=kwargs.get(pkfield))
         except ObjectDoesNotExist:
             return rc.NOT_FOUND
         except MultipleObjectsReturned: # should never happen, since we're using a PK
@@ -97,7 +97,7 @@ class ContactHandler(BaseHandler):
             return rc.BAD_REQUEST
 
         try:
-            inst = self.queryset(request).get(pk=kwargs.get(pkfield))
+            inst = self.model.objects.all().get(pk=kwargs.get(pkfield))
         except ObjectDoesNotExist:
             return rc.NOT_FOUND
         except MultipleObjectsReturned: # should never happen, since we're using a PK
