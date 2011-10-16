@@ -11,5 +11,5 @@ gunicorn==0.13.4
 psycopg2==2.4.2
 pyserial==2.5
 wsgiref==0.1.2
--e hg+https://bitbucket.org/jespern/django-piston/@c4b2d21db51a531b069dd7f0d7fc10996c9c70c8#egg=django_piston-tip
+#-e hg+https://bitbucket.org/jespern/django-piston/@c4b2d21db51a531b069dd7f0d7fc10996c9c70c8#egg=django_piston-tip
 #django-piston==0.2.2

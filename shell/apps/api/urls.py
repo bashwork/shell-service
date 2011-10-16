@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
-from piston.doc import documentation_view
-from piston.resource import Resource
+from shell.apps.piston.doc import documentation_view
+from shell.apps.piston.resource import Resource
 from shell.apps.api import handlers
 
 # -------------------------------------------------------- #
