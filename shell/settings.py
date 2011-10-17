@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, 'apps'))
 # --------------------------------------------------------------------------------
 # prototype django settings
 # --------------------------------------------------------------------------------
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -131,6 +131,7 @@ ROOT_URLCONF = 'shell.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, 'templates'),
+    os.path.join(PROJECT_ROOT, 'apps/frontend/templates'),
 )
 
 INSTALLED_APPS = (
@@ -153,11 +154,14 @@ INSTALLED_APPS = (
     # Sentry Logging
     #--------------------------------------------
     'sentry',
-    'sentry.client', 
+    'sentry.client',
+    #'overseer',
+
     #--------------------------------------------
     # custom applications
     #--------------------------------------------
     'shell.apps.api',
+    'shell.apps.frontend',
 )
 
 #------------------------------------------------------------------------------ 
@@ -173,6 +177,7 @@ SENTRY_CATCH_404_ERRORS = False
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
+INTERNAL_IPS = ('127.0.0.1',)
 
 # --------------------------------------------------------------------------------
 # A sample logging configuration. The only tangible logging
@@ -181,40 +186,44 @@ DEBUG_TOOLBAR_CONFIG = {
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 # --------------------------------------------------------------------------------
-#LOGGING = {
-#    'version': 1,
-#    #'disable_existing_loggers': True,
-#    #'root': {
-#    #    'level': 'WARNING',
-#    #    'handlers': ['sentry'],
-#    #},
-#    #'formatters': {
-#    #    'verbose': {
-#    #        'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-#    #    },
-#    #},
-#    #'handlers': {
-#    #    'sentry': {
-#    #        'level': 'DEBUG',
-#    #        'class': 'sentry.client.handlers.SentryHandler',
-#    #        'formatter': 'verbose',
-#    #    },
-#        #'console': {
-#        #    'level': 'DEBUG',
-#        #    'class': 'logging.StreamHandler',
-#        #    'formatter': 'verbose',
-#        #}
-#    },
-#    'loggers': {
-#        #'sentry.errors': {
-#        #    'handlers': ['console'],
-#        #    'level': 'DEBUG',
-#        #    'propagate': False,
-#        #},
-#        #'django.request': {
-#        #    'handlers': ['mail_admins'],
-#        #    'level': 'ERROR',
-#        #    'propagate': True,
-#        #},
-#    }
-#}
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'root': {
+        'level': 'WARNING',
+        'handlers': ['sentry'],
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+    },
+    'handlers': {
+        'sentry': {
+            'level': 'DEBUG',
+            'class': 'sentry.client.handlers.SentryHandler',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        }
+    },
+    'loggers': {
+        'sentry.errors': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    }
+}
+# --------------------------------------------------------------------------------
+# Configration for the overseer status page
+# --------------------------------------------------------------------------------
+OVERSEER_CONFIG = {
+    'TITLE': 'Shell Service Status',
+    'NAME': 'status.shell.com',
+    'MEDIA_PREFIX': '/status/media/',
+    #'BASE_URL' : 'http://status.disqus.com',
+}

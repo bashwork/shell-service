@@ -9,5 +9,7 @@ urlpatterns = patterns('',
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^sentry/', include('sentry.web.urls')),
+    #url(r'^status/?', include('overseer.urls', namespace='overseer')),
     url(r'^api/v1/', include('shell.apps.api.urls')),
+    url(r'^', include('shell.apps.frontend.urls')),
 )
