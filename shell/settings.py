@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     # custom applications
     #--------------------------------------------
     'shell.apps.api',
+    'shell.apps.serial',
     'shell.apps.frontend',
 )
 
