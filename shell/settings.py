@@ -187,38 +187,38 @@ INTERNAL_IPS = ('127.0.0.1',)
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 # --------------------------------------------------------------------------------
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'root': {
-        'level': 'WARNING',
-        'handlers': ['sentry'],
-    },
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-    },
-    'handlers': {
-        'sentry': {
-            'level': 'DEBUG',
-            'class': 'sentry.client.handlers.SentryHandler',
-            'formatter': 'verbose',
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        }
-    },
-    'loggers': {
-        'sentry.errors': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-    }
-}
+#LOGGING = {
+#    'version': 1,
+#    'disable_existing_loggers': True,
+#    'root': {
+#        'level': 'WARNING',
+#        'handlers': ['sentry'],
+#    },
+#    'formatters': {
+#        'verbose': {
+#            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+#        },
+#    },
+#    'handlers': {
+#        'sentry': {
+#            'level': 'DEBUG',
+#            'class': 'sentry.client.handlers.SentryHandler',
+#            'formatter': 'verbose',
+#        },
+#        'console': {
+#            'level': 'DEBUG',
+#            'class': 'logging.StreamHandler',
+#            'formatter': 'verbose',
+#        }
+#    },
+#    'loggers': {
+#        'sentry.errors': {
+#            'handlers': ['console'],
+#            'level': 'DEBUG',
+#            'propagate': False,
+#        },
+#    }
+#}
 # --------------------------------------------------------------------------------
 # Configration for the overseer status page
 # --------------------------------------------------------------------------------
