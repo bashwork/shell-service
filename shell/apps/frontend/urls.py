@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-urlpatterns += patterns('',
+urlpatterns = patterns('',
     #url(r'^/?$', reading_handler),
 )
 
