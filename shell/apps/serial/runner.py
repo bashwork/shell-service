@@ -2,7 +2,7 @@ from twisted.internet import reactor, task
 from twisted.web.server import Site
 from twisted.web import server
 from twisted.web.resource import Resource
-from shell.apps.api.models import Player
+#from shell.apps.api.models import Player
 from random import randint, random
 
 class StreamingPage(Resource):
@@ -35,3 +35,6 @@ def start_server(port=8080):
     reactor.listenTCP(port, factory)
     reactor.run()
 
+if __name__ == "__main__":
+    import sys
+    start_server(int(sys.argv[1]))
