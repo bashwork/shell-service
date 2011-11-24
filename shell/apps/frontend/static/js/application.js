@@ -91,7 +91,7 @@
     $.shell.player.all().then(function(players) {
       $.each(players, function(i, player) {
         $("<img/>", {
-          src     : "/static/img/player.jpg",
+          src     : "https://github.com/bashwork/shell-service/raw/master/shell/apps/frontend/static/img/player.jpg",
           alt     : player.firstname + " " + player.lastname,
           'class' : 'thumbnail',
           data    : player
