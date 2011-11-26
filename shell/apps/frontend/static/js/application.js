@@ -3,7 +3,7 @@
     base : "/api/v1/",
     //base : "http://radiant-meadow-2958.herokuapp.com/api/v1/",
   };
-  
+
   $.shell = {};
   $.shell.player = {
     all : function() {
@@ -15,7 +15,18 @@
   };
   $.shell.history = {
     get : function(id) {
+      return $.getJSON(common.base + "history/" + id + "/?callback=?");
+    },
+    player : function(id) {
       return $.getJSON(common.base + "player/" + id + "/history/?callback=?");
+    },
+  };
+  $.shell.trauma = {
+    get : function(id) {
+      return $.getJSON(common.base + "trauma/" + id + "/?callback=?");
+    },
+    player : function(id) {
+      return $.getJSON(common.base + "player/" + id + "/trauma/?callback=?");
     },
   };
 })(jQuery);
@@ -68,7 +79,7 @@
   };
 
   Application.select = function(event) {
-    $.shell.history.get(event.data.player.id).then(Application.chart);
+    $.shell.history.player(event.data.player.id).then(Application.chart);
     $('#player-dialog').dialog('option', 'title',
       event.data.player.firstname + ' ' + event.data.player.lastname);
     $('#player-dialog').dialog('open');
@@ -91,7 +102,8 @@
     $.shell.player.all().then(function(players) {
       $.each(players, function(i, player) {
         $("<img/>", {
-          src     : "https://github.com/bashwork/shell-service/raw/master/shell/apps/frontend/static/img/player.jpg",
+          src     : "/static/img/player.jpg",
+          //src     : "https://github.com/bashwork/shell-service/raw/master/shell/apps/frontend/static/img/player.jpg",
           alt     : player.firstname + " " + player.lastname,
           'class' : 'thumbnail',
           data    : player

@@ -79,3 +79,17 @@ class Reading(models.Model):
     def __unicode__(self):
         return "%s:[%fh][%ff][%fg]" % (self.date, self.humidity, self.temperature, self.acceleration)
 
+class Trauma(models.Model):
+    ''' Represents a single tramatic hit for a given player
+    '''
+    player       = models.ForeignKey('Player', related_name='')
+    date         = models.DateTimeField(auto_now=True)
+    acceleration = models.DecimalField(max_digits=8, decimal_places=3)
+    conscious    = models.BooleanField(default=True)
+    comments     = models.TextField(null=True, blank=True)
+
+    class Meta:
+        ordering = ('date',)
+
+    def __unicode__(self):
+        return "%s:[%fg]" % (self.date, self.acceleration)

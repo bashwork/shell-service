@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, 'apps'))
 # --------------------------------------------------------------------------------
 # prototype django settings
 # --------------------------------------------------------------------------------
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -124,6 +124,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
@@ -144,6 +145,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.markup',
+    'django.contrib.flatpages',
     #--------------------------------------------
     # third party applications
     #--------------------------------------------

@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from shell.apps.piston.handler import BaseHandler
-from shell.apps.api.models import Player, Reading, Contact
+from shell.apps.api.models import Player, Reading, Contact, Trauma
 
 # -------------------------------------------------------- #
 # class CsrfExemptBaseHandler(BaseHandler):
@@ -64,17 +64,46 @@ class ReadingHandler(BaseHandler):
     ''' This it the service interface to the
     player's history readings.
     '''
-    allowed_methods = ('GET', 'POST',)
+    allowed_methods = ('GET', 'POST', 'PUT')
     model = Reading
     exclude = ('player',)
 
-    def read(self, request, id, count=30):
-        ''' Returns one or more players that have been requested
+    def read(self, request, id=None, pid=None, count=30):
+        ''' Returns one or more readings that have been requested
 
         :param request: The request to process
-        :param id: The player number to process
+        :param id: The reading id to process
+        :param pid: The player id to process
         :param count: The number of readings to return
         '''
-        player = Reading.objects.filter(player__id=id)
-        readings = player.order_by('-date')[:count]
+        readings = []
+        if id != None:
+            readings = Reading.objects.filter(id=id)
+        elif pid != None:
+            player = Reading.objects.filter(player__id=pid)
+            readings = player.order_by('-date')[:count]
+        return readings
+
+class TraumaHandler(BaseHandler):
+    ''' This it the service interface to the
+    player's tramatic readings.
+    '''
+    allowed_methods = ('GET', 'POST')
+    model = Trauma
+    exclude = ('player',)
+
+    def read(self, request, id=None, pid=None, count=30):
+        ''' Returns one or more tramatic hits that have been requested
+
+        :param request: The request to process
+        :param id: The trauma id to process
+        :param pid: The player id to process
+        :param count: The number of readings to return
+        '''
+        readings = []
+        if id != None:
+            readings = Trauma.objects.filter(id=id)
+        elif pid != None:
+            player = Trauma.objects.filter(player__id=id)
+            readings = player.order_by('-date')[:count]
         return readings
