@@ -84,6 +84,16 @@ class ReadingHandler(BaseHandler):
             readings = player.order_by('-date')[:count]
         return readings
 
+    def create(self, request):
+        ''' Creates a new history instance
+
+        :param request: The request to process
+        '''
+        request.data._mutable = True # hack
+        pid = request.data.get('player', None)
+        request.data['player'] = get_object_or_404(Player, id=pid)
+        return super(ReadingHandler, self).create(request)
+
 class TraumaHandler(BaseHandler):
     ''' This it the service interface to the
     player's tramatic readings.
@@ -107,3 +117,13 @@ class TraumaHandler(BaseHandler):
             player = Trauma.objects.filter(player__id=id)
             readings = player.order_by('-date')[:count]
         return readings
+
+    def create(self, request):
+        ''' Creates a new trauma instance
+
+        :param request: The request to process
+        '''
+        request.data._mutable = True # hack
+        pid = request.data.get('player', None)
+        request.data['player'] = get_object_or_404(Player, id=pid)
+        return super(TraumaHandler, self).create(request)
