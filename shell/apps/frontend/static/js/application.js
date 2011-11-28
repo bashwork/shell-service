@@ -1,4 +1,21 @@
 /**
+ * Jquery monkey patching
+ * - add the put ajax helper method
+ */
+(function($) {
+
+  $.put = function(url, data) {
+    return $.ajax({
+      type     : 'put',
+      url      : url,
+      data     : data,
+      dataType : 'json'
+    });
+  };
+
+})(jQuery);
+
+/**
  * API wrapper for the shell platform
  * - TODO convert to template and generate development/production
  */
@@ -33,26 +50,61 @@
     },
     get : function(id) {
       return $.getJSON(common.api.base + "player/" + id + "/?callback=?");
+    },
+    create : function(data) {
+      return $.post(common.api.base + "player/?callback=?", data);
+    },
+    update : function(data) {
+      return $.put(common.api.base + "player/" + data.id + "/?callback=?", data);
+    },
+    trauma : function(id) {
+      return $.getJSON(common.api.base + "player/" + id + "/trauma/?callback=?");
+    },
+    history : function(id) {
+      return $.getJSON(common.api.base + "player/" + id + "/history/?callback=?");
+    }
+  };
+  $.shell.contact = {
+    all : function() {
+      return $.getJSON(common.api.base + "contact/?callback=?");
+    },
+    get : function(id) {
+      return $.getJSON(common.api.base + "contact/" + id + "/?callback=?");
+    },
+    create : function(data) {
+      return $.post(common.api.base + "contact/?callback=?", data);
+    },
+    update : function(data) {
+      return $.put(common.api.base + "contact/" + data.id + "/?callback=?", data);
     }
   };
   $.shell.history = {
     get : function(id) {
       return $.getJSON(common.api.base + "history/" + id + "/?callback=?");
     },
-    player : function(id) {
-      return $.getJSON(common.api.base + "player/" + id + "/history/?callback=?");
+    create : function(data) {
+      return $.post(common.api.base + "history/?callback=?", data);
+    },
+    update : function(data) {
+      return $.put(common.api.base + "history/" + data.id + "/?callback=?", data);
     }
   };
   $.shell.trauma = {
     get : function(id) {
       return $.getJSON(common.api.base + "trauma/" + id + "/?callback=?");
     },
-    player : function(id) {
-      return $.getJSON(common.api.base + "player/" + id + "/trauma/?callback=?");
+    create : function(data) {
+      return $.post(common.api.base + "trauma/?callback=?", data);
+    },
+    update : function(data) {
+      return $.put(common.api.base + "trauma/" + data.id + "/?callback=?", data);
     }
   };
 })(jQuery);
 
+/**
+ * Web application code
+ */
 (function($) {
   Application = { };
   /**
@@ -110,7 +162,7 @@
    * Toggle player information view
    */
   Application.select = function(event) {
-    $.shell.history.player(event.data.player.id).then(Application.chart);
+    $.shell.player.history(event.data.player.id).then(Application.chart);
     $('#player-information').html(
       $.shell.template.compile('player.information', event.data));
     $('#player-dialog').dialog('option', 'title',
@@ -118,6 +170,9 @@
     $('#player-dialog').dialog('open');
   };
 
+  /**
+   * Initialize the web application
+   */
   Application.initialize = function() {
     /**
      * Initialize information dialog
@@ -175,4 +230,7 @@
 
 })(jQuery);
 
+/**
+ * Start the web application
+ */
 $(document).ready(Application.initialize);
