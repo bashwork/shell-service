@@ -20,7 +20,7 @@ class Player(models.Model):
         ordering = ('lastname','firstname',)
 
     def __unicode__(self):
-        return "%s, %s" % (self.lastname, self.firstname)
+        return "[%d] %s, %s" % (self.number, self.lastname, self.firstname)
 
     @classmethod
     def byName(cls, name):
@@ -51,7 +51,7 @@ class Contact(models.Model):
     phone     = models.CharField(max_length=20,  null=True, blank=True)
     altphone  = models.CharField(max_length=20,  null=True, blank=True)
     address   = models.CharField(max_length=100, null=True, blank=True)
-    relation  = models.IntegerField(max_length=1, choices=RELATION_CHOICES)
+    relation  = models.IntegerField(max_length=1, choices=RELATION_CHOICES, default=0)
 
     class Meta:
         ordering = ('lastname','firstname',)
@@ -66,18 +66,25 @@ class Reading(models.Model):
               for the given session. Also, except for notable hits,
               the acceleration will be the aggregate for the session.
     '''
+    STATUS_CHOICES = (
+      (0, 'Inactive'),
+      (1, 'Good'),
+      (2, 'Warning'),
+      (3, 'Emergency'),
+    )
     player       = models.ForeignKey('Player', related_name='readings')
     date         = models.DateTimeField(auto_now=True)
     hits         = models.IntegerField(default=0)
     temperature  = models.DecimalField(max_digits=6, decimal_places=2)
     humidity     = models.DecimalField(max_digits=6, decimal_places=2)
     acceleration = models.DecimalField(max_digits=8, decimal_places=3)
+    status       = models.IntegerField(max_length=1, choices=STATUS_CHOICES, default=0)
 
     class Meta:
         ordering = ('date',)
 
     def __unicode__(self):
-        return "%s:[%fh][%ff][%fg]" % (self.date, self.humidity, self.temperature, self.acceleration)
+        return "[%s] %s" % (self.date, self.status)
 
 class Trauma(models.Model):
     ''' Represents a single tramatic hit for a given player
@@ -92,4 +99,4 @@ class Trauma(models.Model):
         ordering = ('date',)
 
     def __unicode__(self):
-        return "%s:[%fg]" % (self.date, self.acceleration)
+        return "[%s] %fg" % (self.date, self.acceleration)

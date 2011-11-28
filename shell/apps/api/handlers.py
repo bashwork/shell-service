@@ -60,6 +60,16 @@ class ContactHandler(BaseHandler):
             return objects.filter(player__id=pid)
         else: return objects.all()
 
+    def create(self, request):
+        ''' Creates a new history instance
+
+        :param request: The request to process
+        '''
+        request.data._mutable = True # hack
+        pid = request.data.get('player', None)
+        request.data['player'] = get_object_or_404(Player, id=pid)
+        return super(ContactHandler, self).create(request)
+
 class ReadingHandler(BaseHandler):
     ''' This it the service interface to the
     player's history readings.
@@ -98,7 +108,7 @@ class TraumaHandler(BaseHandler):
     ''' This it the service interface to the
     player's tramatic readings.
     '''
-    allowed_methods = ('GET', 'POST')
+    allowed_methods = ('GET', 'POST', 'PUT')
     model = Trauma
     exclude = ('player',)
 
