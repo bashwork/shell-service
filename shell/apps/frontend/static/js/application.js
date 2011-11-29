@@ -129,7 +129,7 @@
     var chart = new Highcharts.Chart({
       chart : {
         renderTo : 'player-chart',
-        defaultSeriesType : 'line',
+        defaultSeriesType : 'line'
       },
       title : { text : 'Player History' },
       yAxis : {
@@ -192,6 +192,7 @@
     /**
      * Initialize players for the front page:
      * - auto suggest initialize
+     * - block search submit (page reload)
      * - main helmet view initialize
      */
     $.shell.player.all().then(function(players) {
@@ -217,7 +218,8 @@
       });
       $('#player-search').keyup(function() {
         Application.filter($(this).val());
-      }).autocomplete({ source : names });
+      }).autocomplete({ source : names })
+        .parent().submit(function() { return false; });
     });
 
     /**
