@@ -4,7 +4,7 @@ A simple serial logger for the shell firmware
 messages.
 '''
 import sys, time
-import tos as tinyos
+import tinyos
 from multiprocessing import Process, Queue, Event 
 
 
