@@ -3,11 +3,11 @@
         "fields": {
             "active": true, 
             "birthday": "1985-02-14", 
-            "comments": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nibh metus, vulputate non pretium non, malesuada vel ipsum. Praesent lacus tortor, ullamcorper congue venenatis sit amet, consequat in elit. Aliquam cursus nisi ac magna varius tempus. Donec suscipit fringilla iaculis. Donec mattis mauris non odio congue id sagittis orci luctus. Aliquam sit amet erat consectetur quam ullamcorper pretium a ut dui. Curabitur id ligula libero. Aliquam luctus sem a tortor tempus pharetra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus vehicula neque et justo lobortis a tincidunt massa venenatis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Suspendisse sagittis commodo eros, eu vulputate dui fermentum a.", 
-            "firstname": "Galen", 
+            "comments": "", 
+            "firstname": "Reggie", 
             "number": 10, 
             "height": "5.10", 
-            "lastname": "Collins", 
+            "lastname": "White", 
             "weight": "160.0"
         }, 
         "model": "api.player", 
@@ -18,11 +18,25 @@
             "active": true, 
             "birthday": "1984-09-08", 
             "comments": "", 
-            "firstname": "Jen", 
+            "firstname": "Tom", 
             "number": 20, 
             "height": "5.9", 
-            "lastname": "Lastname", 
+            "lastname": "Brady", 
             "weight": "120.0"
+        }, 
+        "model": "api.player", 
+        "pk": 2
+    }, 
+    {
+        "fields": {
+            "active": true, 
+            "birthday": "1976-03-24", 
+            "comments": "", 
+            "firstname": "Peyton", 
+            "number": 18, 
+            "height": "6.5", 
+            "lastname": "Manning", 
+            "weight": "230.0"
         }, 
         "model": "api.player", 
         "pk": 3
@@ -30,135 +44,113 @@
     {
         "fields": {
             "active": true, 
-            "birthday": "2011-09-28", 
+            "birthday": "1942-12-09", 
             "comments": "", 
-            "firstname": "Mandy", 
-            "number": 30, 
-            "height": "5.6", 
-            "lastname": "Ries", 
-            "weight": "100.0"
+            "firstname": "Dick", 
+            "number": 51, 
+            "height": "6.3", 
+            "lastname": "Butkus", 
+            "weight": "250.0"
         }, 
         "model": "api.player", 
-        "pk": 2
-    }, 
-    {
-        "fields": {
-            "hits": 20, 
-            "acceleration": "10", 
-            "date": "2011-09-19 12:59:37", 
-            "humidity": "10", 
-            "player": 1, 
-            "temperature": "10"
-        }, 
-        "model": "api.reading", 
-        "pk": 1
-    }, 
-    {
-        "fields": {
-            "hits": 20, 
-            "acceleration": "11", 
-            "date": "2011-09-20 12:59:37", 
-            "humidity": "11", 
-            "player": 1, 
-            "temperature": "11"
-        }, 
-        "model": "api.reading", 
-        "pk": 2
-    }, 
-    {
-        "fields": {
-            "hits": 20, 
-            "acceleration": "12", 
-            "date": "2011-09-21 12:59:37", 
-            "humidity": "12", 
-            "player": 1, 
-            "temperature": "12"
-        }, 
-        "model": "api.reading", 
-        "pk": 3
-    }, 
-    {
-        "fields": {
-            "hits": 20, 
-            "acceleration": "13", 
-            "date": "2011-09-22 12:59:37", 
-            "humidity": "13", 
-            "player": 1, 
-            "temperature": "13"
-        }, 
-        "model": "api.reading", 
         "pk": 4
     }, 
     {
         "fields": {
-            "hits": 20, 
-            "acceleration": "14", 
-            "date": "2011-09-23 12:59:37", 
-            "humidity": "14", 
-            "player": 1, 
-            "temperature": "14"
+            "active": true, 
+            "birthday": "1933-05-07", 
+            "comments": "", 
+            "firstname": "Johnny", 
+            "number": 19, 
+            "height": "6.1", 
+            "lastname": "Unitas", 
+            "weight": "194.0"
         }, 
-        "model": "api.reading", 
+        "model": "api.player", 
         "pk": 5
     }, 
     {
         "fields": {
-            "hits": 20, 
-            "acceleration": "15", 
-            "date": "2011-09-24 12:59:37", 
-            "humidity": "15", 
-            "player": 1, 
-            "temperature": "15"
+            "active": true, 
+            "birthday": "1956-06-11", 
+            "comments": "", 
+            "firstname": "Joe", 
+            "number": 16, 
+            "height": "6.2", 
+            "lastname": "Montana", 
+            "weight": "205.0"
         }, 
-        "model": "api.reading", 
+        "model": "api.player", 
         "pk": 6
     }, 
     {
         "fields": {
-            "hits": 20, 
-            "acceleration": "16", 
-            "date": "2011-09-25 12:59:37", 
-            "humidity": "16", 
-            "player": 1, 
-            "temperature": "16"
+            "active": true, 
+            "birthday": "1962-10-13", 
+            "comments": "", 
+            "firstname": "Jerry", 
+            "number": 80, 
+            "height": "6.2", 
+            "lastname": "Rice", 
+            "weight": "200.0"
         }, 
-        "model": "api.reading", 
+        "model": "api.player", 
         "pk": 7
     }, 
     {
         "fields": {
-            "hits": 20, 
-            "acceleration": "17", 
-            "date": "2011-09-26 12:59:37", 
-            "humidity": "17", 
-            "player": 1, 
-            "temperature": "17"
+            "active": true, 
+            "birthday": "1979-01-15", 
+            "comments": "", 
+            "firstname": "Drew", 
+            "number": 9, 
+            "height": "6.0", 
+            "lastname": "Brees", 
+            "weight": "209.0"
         }, 
-        "model": "api.reading", 
+        "model": "api.player", 
         "pk": 8
     }, 
     {
         "fields": {
-            "hits": 20, 
-            "acceleration": "18", 
-            "date": "2011-09-27 12:59:37", 
-            "humidity": "18", 
-            "player": 1, 
-            "temperature": "18"
+            "active": true, 
+            "birthday": "1943-05-31", 
+            "comments": "", 
+            "firstname": "Joe", 
+            "number": 12, 
+            "height": "6.2", 
+            "lastname": "Namath", 
+            "weight": "200.0"
         }, 
-        "model": "api.reading", 
+        "model": "api.player", 
         "pk": 9
     }, 
     {
         "fields": {
-            "hits": 20, 
-            "acceleration": "19", 
-            "date": "2011-09-28 12:59:37", 
-            "humidity": "19", 
-            "player": 1, 
-            "temperature": "19"
+            "active": true, 
+            "birthday": "1977-08-30", 
+            "comments": "", 
+            "firstname": "Shaun", 
+            "number": 37, 
+            "height": "5.11", 
+            "lastname": "Alexander", 
+            "weight": "225.0"
         }, 
-        "model": "api.reading", 
+        "model": "api.player", 
         "pk": 10
-    }
+    }, 
+    {
+        "fields": {
+            "active": true, 
+            "birthday": "1969-10-10", 
+            "comments": "", 
+            "firstname": "Brett", 
+            "number": 4, 
+            "height": "6.2", 
+            "lastname": "Favre", 
+            "weight": "222.0"
+        }, 
+        "model": "api.player", 
+        "pk": 11
+    }, 
 ]

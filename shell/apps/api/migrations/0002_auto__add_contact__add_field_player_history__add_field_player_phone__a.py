@@ -17,7 +17,7 @@ class Migration(SchemaMigration):
             ('phone', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
             ('altphone', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
             ('address', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('relation', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
+            ('relation', self.gf('django.db.models.fields.IntegerField')(max_length=1)),
         ))
         db.send_create_signal('api', ['Contact'])
 
@@ -56,7 +56,7 @@ class Migration(SchemaMigration):
             'lastname': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'player': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contacts'", 'to': "orm['api.Player']"}),
-            'relation': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
+            'relation': ('django.db.models.fields.IntegerField', [], {'max_length': '1'})
         },
         'api.player': {
             'Meta': {'ordering': "('lastname', 'firstname')", 'object_name': 'Player'},
