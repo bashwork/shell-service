@@ -152,5 +152,5 @@
         }, 
         "model": "api.player", 
         "pk": 11
-    }, 
+    } 
 ]
