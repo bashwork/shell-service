@@ -73,7 +73,8 @@ class Reading(models.Model):
       (3, 'Emergency'),
     )
     player       = models.ForeignKey('Player', related_name='readings')
-    date         = models.DateTimeField(auto_now=True)
+    date         = models.DateTimeField()
+    updated      = models.DateTimeField(auto_now=True)
     hits         = models.IntegerField(default=0)
     temperature  = models.DecimalField(max_digits=6, decimal_places=2)
     humidity     = models.DecimalField(max_digits=6, decimal_places=2)
@@ -90,7 +91,8 @@ class Trauma(models.Model):
     ''' Represents a single tramatic hit for a given player
     '''
     player       = models.ForeignKey('Player', related_name='')
-    date         = models.DateTimeField(auto_now=True)
+    date         = models.DateTimeField()
+    updated      = models.DateTimeField(auto_now=True)
     acceleration = models.DecimalField(max_digits=8, decimal_places=3)
     conscious    = models.BooleanField(default=True)
     comments     = models.TextField(null=True, blank=True)
