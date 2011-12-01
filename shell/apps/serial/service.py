@@ -31,7 +31,7 @@ class ShellProcessor(threading.Thread):
         self.client  = ShellClient()
         super(ShellProcessor, self).__init__()
 
-    def deliver_message(self, message):
+    def __deliver_message(self, message):
         ''' The processing step to deliver new messages to the clients
 
         .. note::
@@ -45,7 +45,7 @@ class ShellProcessor(threading.Thread):
         for queue in ShellProcessor.connections:
             queue.put_nowait(message)
     
-    def update_database(self, message):
+    def __update_database(self, message):
         ''' The processing step to update the database
 
         :param message: The message to process
@@ -60,12 +60,14 @@ class ShellProcessor(threading.Thread):
     def run(self):
         ''' The main processor for new messages
         '''
-        message_queue = self.watcher.start()
-        for message in iter(message_queue.get, None):
-            try:
-                self.deliver_message(message)
-                #self.update_database(message)
-            except ex: _logger.error(ex)
+        try:
+            message_queue = self.watcher.start()
+            for message in iter(message_queue.get, None):
+                try:
+                    self.__deliver_message(message)
+                    #self.__update_database(message)
+                except ex: _logger.error(ex)
+        except ex: self.watcher.stop()
 
 
 # ----------------------------------------------------------------------------- 
@@ -87,13 +89,6 @@ def main(environ, start_response):
     except ex:
         _logger.error(ex)
         ShellProcessor.connections.remove(queue)
-
-def when_ready(server):
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
-
-    processor = ShellProcessor()
-    processor.start()
 
 # ----------------------------------------------------------------------------- 
 # main runner 

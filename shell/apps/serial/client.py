@@ -23,7 +23,7 @@ class RestClient(object):
         '''
         self.base = base
         self.client = http_client(".cache")
-        self.headers = {}
+        self.headers = {'content-type':'application/x-www-form-urlencoded'}
 
     def get_request(self, path):
         ''' Perform an http GET request on a resource
