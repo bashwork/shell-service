@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, 'apps'))
 # --------------------------------------------------------------------------------
 # prototype django settings
 # --------------------------------------------------------------------------------
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -84,8 +84,8 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static/')
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 # --------------------------------------------------------------------------------
-#STATIC_URL = "http://bashwork.github.com/shell-service/static/"
-STATIC_URL = '/static/'
+STATIC_URL = "http://bashwork.github.com/shell-service/static/"
+#STATIC_URL = '/static/'
 
 # --------------------------------------------------------------------------------
 # URL prefix for admin static files -- CSS, JavaScript and images.

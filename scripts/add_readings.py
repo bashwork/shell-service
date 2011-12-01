@@ -10,8 +10,8 @@ def generate_data(id, day):
 def post_request(data):
     print data
     client = httplib2.Http(".cache")
-    host = "http://localhost:8000/api/v1/history/"
-    #host = "http://radiant-meadow-2958.herokuapp.com/api/v1/history/"
+    #host = "http://localhost:8000/api/v1/history/"
+    host = "http://radiant-meadow-2958.herokuapp.com/api/v1/history/"
     response, content = client.request(host, "POST", body=data,
         headers = {'content-type':'application/x-www-form-urlencoded'})
     if response.status != 200: print content
@@ -21,5 +21,5 @@ def create_player_history(id, count):
         data = generate_data(id,day)
         post_request(data)
 
-for player in range(1,20):
+for player in range(1,12):
     create_player_history(player, 20)
