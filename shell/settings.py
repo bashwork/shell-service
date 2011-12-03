@@ -155,7 +155,7 @@ INSTALLED_APPS = (
     #--------------------------------------------
     'sentry',
     'sentry.client',
-    'overseer',
+    #'overseer',
 
     #--------------------------------------------
     # custom applications
