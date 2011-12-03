@@ -105,7 +105,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -115,7 +114,6 @@ SECRET_KEY = '9$c09ht3-z#hz$58@gt=pt8qk!etz+^65rbv^d(40vbzw(1r4_'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -157,7 +155,7 @@ INSTALLED_APPS = (
     #--------------------------------------------
     'sentry',
     'sentry.client',
-    #'overseer',
+    'overseer',
 
     #--------------------------------------------
     # custom applications
@@ -228,7 +226,7 @@ OVERSEER_CONFIG = {
     'TITLE': 'Shell Service Status',
     'NAME': 'status.shell.com',
     'MEDIA_PREFIX': '/status/media/',
-    #'BASE_URL' : 'http://status.disqus.com',
+    'BASE_URL' : 'http://radiant-meadow-2958.herokuapp.com/status/',
 }
 
 try:
