@@ -85,7 +85,6 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static/')
 # Example: "http://media.lawrence.com/static/"
 # --------------------------------------------------------------------------------
 STATIC_URL = "http://bashwork.github.com/shell-service/static/"
-#STATIC_URL = '/static/'
 
 # --------------------------------------------------------------------------------
 # URL prefix for admin static files -- CSS, JavaScript and images.
@@ -231,3 +230,7 @@ OVERSEER_CONFIG = {
     'MEDIA_PREFIX': '/status/media/',
     #'BASE_URL' : 'http://status.disqus.com',
 }
+
+try:
+    from local_settings import *
+except ImportError: pass

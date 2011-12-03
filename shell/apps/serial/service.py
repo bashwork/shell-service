@@ -21,6 +21,15 @@ _logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------------- 
 # processing interface
 # ----------------------------------------------------------------------------- 
+class PlayerStatus(object):
+    ''' An enumeration representing the player status values
+    '''
+    Unknown    = 0
+    Normal     = 1
+    Warning    = 2
+    Emergency  = 3
+
+
 class ShellProcessor(threading.Thread):
     connections = [] # add/removes are atomic, no locking needed
 
@@ -30,6 +39,24 @@ class ShellProcessor(threading.Thread):
         self.watcher = SerialWatcher()
         self.client  = ShellClient()
         super(ShellProcessor, self).__init__()
+
+    def __process_message(self, message):
+        ''' The processing step to determine the status of the player
+
+        The rules are as follows:
+
+        1. If no readings are found, the player status is unknown
+        2. If the hits >=25 or the acceleration is >= 100, the status is warning
+        3. If the hits >= 50 or the acceleration is >= 200, the status is emergency
+        4. Otherwise the status is normal
+
+        :param message: The message to process
+        '''
+        if (message['hits'] >= 25) or (message['acceleration'] > 100):
+            message['satus'] = PlayerStatus.Warning
+        elif (message['hits'] >= 50) or (message['acceleration'] > 200) or (mesasge['temperature'] > 100):
+            message['satus'] = PlayerStatus.Emergency
+        else: message['satus'] = PlayerStatus.Normal
 
     def __deliver_message(self, message):
         ''' The processing step to deliver new messages to the clients
@@ -52,7 +79,8 @@ class ShellProcessor(threading.Thread):
         '''
         message_type = message.pop('type', 'unknown')
         if message_type == 'trauma':
-            client.add_trauma(message)
+            client.add_trauma(message)  # a trauma reading forces the status to emergency
+            client.add_reading({ 'player':message['player'], 'status':PlauerStatus.Emergency })
         elif message_type == 'reading':
             client.add_reading(message)
         else: _logger.debug("Unknown message: " + str(message))
@@ -64,8 +92,9 @@ class ShellProcessor(threading.Thread):
             message_queue = self.watcher.start()
             for message in iter(message_queue.get, None):
                 try:
+                    self.__process_message(message)
                     self.__deliver_message(message)
-                    #self.__update_database(message)
+                    self.__update_database(message)
                 except ex: _logger.error(ex)
         except ex: self.watcher.stop()
 

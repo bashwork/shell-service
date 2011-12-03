@@ -125,7 +125,7 @@ class TraumaHandler(BaseHandler):
         if id != None:
             readings = Trauma.objects.filter(id=id)
         elif pid != None:
-            player = Trauma.objects.filter(player__id=id)
+            player = Trauma.objects.filter(player__id=pid)
             readings = player.order_by('-date')[:count]
         else: readings = Trauma.objects.all()[:count]
         return readings

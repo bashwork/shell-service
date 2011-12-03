@@ -90,7 +90,7 @@ class Reading(models.Model):
 class Trauma(models.Model):
     ''' Represents a single tramatic hit for a given player
     '''
-    player       = models.ForeignKey('Player', related_name='')
+    player       = models.ForeignKey('Player', related_name='traumas')
     date         = models.DateTimeField()
     updated      = models.DateTimeField(auto_now=True)
     acceleration = models.DecimalField(max_digits=8, decimal_places=3)
