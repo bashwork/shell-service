@@ -6,3 +6,4 @@ shel-service/target/
 shel-service/project/boot/
 *.pyc
 *.swp
+local_settings.py

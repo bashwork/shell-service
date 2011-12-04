@@ -3,7 +3,7 @@
 A simple serial logger for the shell firmware
 messages.
 '''
-import sys, time
+import sys, time, signal
 from datetime import datetime
 from random import randint, uniform
 from multiprocessing import Process, Queue, Event 
@@ -149,25 +149,42 @@ class SerialWatcher(object):
             bus and throwing them into the database
         '''
         sys.argv = ['', port or "serial@/dev/ttyUSB0:57600"] # hack, I blame tinyos
-        #messages = tinyos.AM()
+        messages = tinyos.AM()
     
         _logger.info("initialized the serial monitor")
         while not event.is_set():
-            queue.put(TraumaMessage.random(1))
-            time.sleep(5)
+            packet = messages.read()
+            if packet and (packet.type == HistoryMessage.Type):
+                message = HistoryMessage(p.data)
+                queue.put(message.decode)
+            elif packet and (packet.type == TraumaMessage.Type):
+                message = TraumaMessage(p.data)
+                queue.put(message.decode)
+            else: _logger.debug(packet)
         _logger.info("exited the serial monitor")
-
-            #packet = messages.read()
-            #if packet and (packet.type == HistoryMessage.Type):
-            #    message = HistoryMessage(p.data)
-            #    queue.put(message.decode)
-            #elif packet and (packet.type == TraumaMessage.Type):
-            #    message = TraumaMessage(p.data)
-            #    queue.put(message.decode)
-            #else: _logger.debug(packet)
 
 
 # ----------------------------------------------------------------------------- 
 # Exported Types
 # ----------------------------------------------------------------------------- 
 __all__ = ['SerialWatcher']
+
+# ----------------------------------------------------------------------------- 
+# Test Runner
+# ----------------------------------------------------------------------------- 
+if __name__ == "__main__":
+    watcher = SerialWatcher()
+
+    def signal_handler(signal, frame):
+        ''' Make sure we can clean up correctly '''
+        watcher.stop()
+        sys.exit(0)
+    signal.signal(signal.SIGINT, signal_handler)
+
+    try:
+        queue = watcher.start()
+        for message in iter(queue.get, None):
+            print message
+    except Exception as ex:
+        _logger.exception("stream exiting")
+

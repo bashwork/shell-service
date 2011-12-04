@@ -16,15 +16,20 @@ _logger = logging.getLogger(__name__)
 # classes
 # ----------------------------------------------------------------------------- 
 class RestClient(object):
+    ''' A simple rest client wrapper around
+    the httplib2 that provides the common rest verbs.
+    '''
 
-    def __init__(self, base):
+    def __init__(self, base=None):
         ''' Initializes a new instance of the RestClient
 
         :param base: The base uri to store for all requests
         '''
-        self.base = base
-        self.client = http_client(".cache")
-        self.headers = {'content-type':'application/x-www-form-urlencoded'}
+        self.base = base or "http://localhost/"
+        self.client = http_client(".shell_cache")
+        self.headers = {
+            'content-type' : 'application/x-www-form-urlencoded',
+        }
         _logger.debug('Connecting api client to %s' % base)
 
     def get_request(self, path):
@@ -88,6 +93,9 @@ class RestClient(object):
 
 
 class ShellClient(object):
+    ''' A simple wrapper around the relevant shell
+    api for use with the processing service.
+    '''
 
     def __init__(self, base=None):
         ''' Initialize a new instance of the shell client
@@ -150,7 +158,7 @@ class ShellClient(object):
         message  = urlencode(reading)
         return self.client.put_request('history/%d/' % reading['id'], message)
 
-    def get_reading(self, player):
+    def get_latest_reading(self, player):
         ''' Retrieves the most recent reading for the specified player
 
         :param player: The player to get a reading for
@@ -159,3 +167,27 @@ class ShellClient(object):
         reading = self.client.get_request('player/%s/history/1' % player)
         return None if (len(reading) == 0) else reading[0]
 
+    def get_readings(self, player, count=30):
+        ''' Retrieves the most recent count readings
+        for the specified player
+
+        :param player: The player to get a reading for
+        :param count: The number of readings to retreve
+        :returns: The result of the operation
+        '''
+        return self.client.get_request('player/%s/history/%d' % (player, count))
+
+    def get_traumas(self, player, count=30):
+        ''' Retrieves the most recent count trauma
+        readings for the specified player.
+
+        :param player: The player to get a trauma reading for
+        :param count: The number of trauma readings to retreve
+        :returns: The result of the operation
+        '''
+        return self.client.get_request('player/%s/trauma/%d' % (player, count))
+
+# ----------------------------------------------------------------------------- 
+# Exported Types
+# ----------------------------------------------------------------------------- 
+__all__ = ['ShellClient']

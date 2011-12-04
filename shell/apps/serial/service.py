@@ -58,7 +58,7 @@ class ShellProcessor(threading.Thread):
             return self.reading_cache[player]
 
         # we haven't cached yet, get and check latest reading
-        reading = self.client.get_reading(player)
+        reading = self.client.get_latest_reading(player)
         if reading != None:
             reading['short_date'] = reading['date'].split(' ')[0]
             if reading['short_date'] == today:
@@ -186,6 +186,7 @@ def main(environ, start_response):
         ('Transfer-Encoding', 'chunked')
     ]
     try:
+        _logger.debug(environ)
         start_response(status, response_headers)
         return iter(queue.get, None)
     except Exception as ex:
