@@ -4,7 +4,8 @@ service   -> wsgi      -> client stream
 (thread)  -> processor -> queue  -> client stream
 (process) -> serial    -> queue  -> processor
 '''
-import threading
+import signal, sys, threading
+from datetime import date
 from Queue import Queue
 from gevent import pywsgi
 from json import dumps as json_serialize
@@ -22,7 +23,8 @@ _logger = logging.getLogger(__name__)
 # processing interface
 # ----------------------------------------------------------------------------- 
 class PlayerStatus(object):
-    ''' An enumeration representing the player status values
+    ''' An enumeration representing the player status values.
+    Redefined here so we are not reliant upon the api.
     '''
     Unknown    = 0
     Normal     = 1
@@ -31,16 +33,76 @@ class PlayerStatus(object):
 
 
 class ShellProcessor(threading.Thread):
+    ''' This is the shell message processing service
+    ''' 
     connections = [] # add/removes are atomic, no locking needed
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         ''' Initializes a new instance of the ShellProcessor
         '''
-        self.watcher = SerialWatcher()
-        self.client  = ShellClient()
+        self.halt    = False
+        self.watcher = SerialWatcher(kwargs.get('port', None))
+        self.client  = ShellClient(kwargs.get('base', None))
+        self.reading_cache = {}
         super(ShellProcessor, self).__init__()
 
+    def __get_reading_today(self, player):
+        ''' Checks to see if we have an existing reading for today
+
+        :param player: The player to check for a current reading for
+        :returns: The result of the operation
+        '''
+        # we are already cached, just return that
+        today = str(date.today())
+        if self.reading_cache.get(player, {'short_date':''})['short_date'] == today:
+            return self.reading_cache[player]
+
+        # we haven't cached yet, get and check latest reading
+        reading = self.client.get_reading(player)
+        if reading != None:
+            reading['short_date'] = reading['date'].split(' ')[0]
+            if reading['short_date'] == today:
+                self.reading_cache[player] = reading
+                return reading
+
+        # we don't have a reading for today, create it
+        reading = self.client.generate_empty_reading(player)
+        reading = self.client.add_reading(reading)
+        reading['short_date'] = today
+        self.reading_cache[player] = reading
+        return reading
+
+    def __update_player_status(self, player, status):
+        ''' A helper method to simply update the player status
+
+        :param player: The player to check for a current reading for
+        :returns: The result of the operation
+        '''
+        reading = self.__get_reading_today(player)
+        self.client.update_reading({
+            'id'     : reading['id'],
+            'status' : PlayerStatus.Emergency,
+            'date'   : reading['date'],
+            'player' : player,
+        })
+
     def __process_message(self, message):
+        ''' Merges the newest reading data and the current value
+        in the cache.
+
+        :param message: The message to merge with the cache
+        :returns: The merged message
+        '''
+        if message['type'] == 'reading':
+            reading = self.__get_reading_today(message['player'])
+            message['id'] = reading['id'] 
+            message['hits'] = reading['hits'] = (message['hits'] + int(reading['hits']))
+            message['acceleration'] = reading['acceleration'] = (message['acceleration'] + float(reading['acceleration']))
+            reading['humidity'] = message['humidity'] 
+            reading['temperature'] = message['temperature'] 
+        elif message['type'] == 'trauma': pass # the trauma message is merged on the sensor
+
+    def __determine_status(self, message):
         ''' The processing step to determine the status of the player
 
         The rules are as follows:
@@ -52,11 +114,14 @@ class ShellProcessor(threading.Thread):
 
         :param message: The message to process
         '''
-        if (message['hits'] >= 25) or (message['acceleration'] > 100):
-            message['satus'] = PlayerStatus.Warning
-        elif (message['hits'] >= 50) or (message['acceleration'] > 200) or (mesasge['temperature'] > 100):
-            message['satus'] = PlayerStatus.Emergency
-        else: message['satus'] = PlayerStatus.Normal
+        if message['type'] == 'reading':
+            if (message['hits'] >= 50) or (message['acceleration'] > 200) or (message['temperature'] > 100):
+                message['status'] = PlayerStatus.Emergency
+            elif (message['hits'] >= 25) or (message['acceleration'] > 100):
+                message['status'] = PlayerStatus.Warning
+            else: message['status'] = PlayerStatus.Normal
+        elif message['type'] == 'trauma': # a trauma will throw the player into an emergency status
+            self.__update_player_status(message['player'], PlayerStatus.Emergency)
 
     def __deliver_message(self, message):
         ''' The processing step to deliver new messages to the clients
@@ -68,6 +133,7 @@ class ShellProcessor(threading.Thread):
 
         :param message: The message to process
         '''
+        _logger.debug("delivering message to %d clients", len(ShellProcessor.connections))
         message = json_serialize(message) + "\r\n"
         for queue in ShellProcessor.connections:
             queue.put_nowait(message)
@@ -78,12 +144,13 @@ class ShellProcessor(threading.Thread):
         :param message: The message to process
         '''
         message_type = message.pop('type', 'unknown')
-        if message_type == 'trauma':
-            client.add_trauma(message)  # a trauma reading forces the status to emergency
-            client.add_reading({ 'player':message['player'], 'status':PlauerStatus.Emergency })
-        elif message_type == 'reading':
-            client.add_reading(message)
-        else: _logger.debug("Unknown message: " + str(message))
+        if message_type == 'trauma': self.client.add_trauma(message)
+        elif message_type == 'reading': self.client.update_reading(message)
+        else: _logger.error("Unknown message: " + str(message))
+
+    def stop(self):
+        ''' A cheap way to stop the thread '''
+        self.halt = True
     
     def run(self):
         ''' The main processor for new messages
@@ -91,12 +158,18 @@ class ShellProcessor(threading.Thread):
         try:
             message_queue = self.watcher.start()
             for message in iter(message_queue.get, None):
+                if self.halt: raise Exception("Stopping")
                 try:
+                    _logger.debug(str(message))
                     self.__process_message(message)
+                    self.__determine_status(message)
                     self.__deliver_message(message)
                     self.__update_database(message)
-                except ex: _logger.error(ex)
-        except ex: self.watcher.stop()
+                except Exception as ex:
+                    _logger.exception("error processing message")
+        except Exception as ex:
+            _logger.exception("exiting the processing thread")
+            self.watcher.stop()
 
 
 # ----------------------------------------------------------------------------- 
@@ -115,14 +188,18 @@ def main(environ, start_response):
     try:
         start_response(status, response_headers)
         return iter(queue.get, None)
-    except ex:
-        _logger.error(ex)
+    except Exception as ex:
+        _logger.exception("removing client from processing", ex)
         ShellProcessor.connections.remove(queue)
 
 # ----------------------------------------------------------------------------- 
 # main runner 
 # ----------------------------------------------------------------------------- 
+# Use the twisted tac file to run as gevent steals the signals...I don't know
+# how to clean up now.
+# ----------------------------------------------------------------------------- 
 if __name__ == "__main__":
+
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
 
@@ -130,4 +207,13 @@ if __name__ == "__main__":
     processor.start()
 
     server = pywsgi.WSGIServer(('0.0.0.0', 8080), main)
-    server.serve_forever()
+
+    def signal_handler(signal, frame):
+        ''' Make sure we can clean up correctly '''
+        server.stop()
+        processor.stop()
+        processor.join()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    server.serve_forever() # never returns

@@ -27,7 +27,8 @@ wsgiThreadPool.start()
 # ------------------------------------------------------------
 # start the processing service
 # ------------------------------------------------------------
-processor = Shell.ShellProcessor()
+processor = Shell.ShellProcessor(base='http://localhost:8000/api/v1/')
+#processor = Shell.ShellProcessor()
 processor.start()
 
 # ------------------------------------------------------------
@@ -36,13 +37,14 @@ processor.start()
 def twisted_shutdown():
     wsgiThreadPool.stop()
     processor.stop()
+    processor.join()
 
 reactor.addSystemEventTrigger('after', 'shutdown', twisted_shutdown)
 
 # ------------------------------------------------------------
-# Create the WSGI resource
+# create the WSGI resource
 # ------------------------------------------------------------
 wsgiAppAsResource = WSGIResource(reactor, wsgiThreadPool, Shell.main)
-application = service.Application('Twisted.web.wsgi Hello World Example')
+application = service.Application('Shell Streaming Service')
 server = strports.service('tcp:8080', server.Site(wsgiAppAsResource))
 server.setServiceParent(application)

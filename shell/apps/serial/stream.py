@@ -4,8 +4,10 @@ A simple serial logger for the shell firmware
 messages.
 '''
 import sys, time
-import tinyos
+from datetime import datetime
+from random import randint, uniform
 from multiprocessing import Process, Queue, Event 
+import tinyos
 
 # ----------------------------------------------------------------------------- 
 # Logging
@@ -46,7 +48,21 @@ class HistoryMessage(tinyos.Packet):
             'humidity'     : 97.5,
             'acceleration' : values[0],
             'hits'         : values[1],
-            'date'         : datetime.now(),
+            'date'         : str(datetime.now()),
+        }
+
+    @classmethod
+    def random(cls, player):
+        ''' Returns a random message used for testing
+        '''
+        return {
+            'player'       : player,
+            'type'         :'reading',
+            'temperature'  : uniform(97, 100),
+            'humidity'     : uniform(97, 100),
+            'acceleration' : uniform(0, 100),
+            'hits'         : randint(0, 5),
+            'date'         : str(datetime.now()),
         }
 
 
@@ -76,7 +92,21 @@ class TraumaMessage(tinyos.Packet):
             'player'       : self.id,
             'type'         :'trauma',
             'acceleration' : values[0],
-            'date'         : datetime.now(),
+            'date'         : str(datetime.now()),
+            'conscious'    : True,  # this is validated later
+            'comments'     : '',    # this is updated later
+        }
+
+    @classmethod
+    def random(cls, player):
+        ''' Returns a random message used for testing
+        '''
+        return {
+            'player'       : player,
+            'type'         :'trauma',
+            'acceleration' : uniform(90, 110),
+            'date'         : str(datetime.now()),
+            'conscious'    : True,
             'comments'     : '',
         }
 
@@ -86,12 +116,12 @@ class TraumaMessage(tinyos.Packet):
 # ----------------------------------------------------------------------------- 
 class SerialWatcher(object):
     
-    def __init__(self):
+    def __init__(self, port=None):
         ''' Initialize a new instance of the class
         '''
         self.queue = Queue()
         self.event = Event()
-        arguments = (self.event, self.queue)
+        arguments = (self.event, self.queue, port)
         self.process = Process(target=self.__watcher, args=arguments)
 
     def start(self):
@@ -114,17 +144,17 @@ class SerialWatcher(object):
             self.process.terminate()
 
     @classmethod
-    def __watcher(cls, event, queue, port="serial@/dev/ttyUSB0:57600"):
+    def __watcher(cls, event, queue, port):
         ''' The main runner for pulling messages off the serial
             bus and throwing them into the database
         '''
-        sys.argv = ['', port] # hack, I blame tinyos
+        sys.argv = ['', port or "serial@/dev/ttyUSB0:57600"] # hack, I blame tinyos
         #messages = tinyos.AM()
     
         _logger.info("initialized the serial monitor")
         while not event.is_set():
-            queue.put({'type':'unknown', 'data':'hello world'})
-            time.sleep(1)
+            queue.put(TraumaMessage.random(1))
+            time.sleep(5)
         _logger.info("exited the serial monitor")
 
             #packet = messages.read()
