@@ -32,6 +32,37 @@ class PlayerStatus(object):
     Emergency  = 3
 
 
+class IterableQueue(Queue):
+    ''' A simple queue wrapper that implements
+    iterable and auto registration, deregistration with
+    my handler.
+    '''
+
+    def __init__(self):
+        ''' Initializes a new instance of the IterableQueue
+        and registers this with the processor.
+        '''
+        _logger.debug("Registering a client for processing")
+        Queue.__init__(self) # Queue is an old style class
+        ShellProcessor.connections.append(self)
+
+    def __iter__(self):
+        ''' Gets the iterator for this instance.
+
+        :returns: a handle to a new iterator
+        '''
+        return iter(self.get, None)
+
+    def close(self):
+        ''' Close this queue down and unregister it
+        from the processor.
+        '''
+        _logger.debug("Unregistering a client from processing")
+        self.put(None)
+        self.task_done()
+        ShellProcessor.connections.remove(self)
+
+
 class ShellProcessor(threading.Thread):
     ''' This is the shell message processing service
     ''' 
@@ -178,17 +209,15 @@ class ShellProcessor(threading.Thread):
 def main(environ, start_response):
     ''' The main wsgi application
     '''
-    queue = Queue()
-    ShellProcessor.connections.append(queue)
+    queue = IterableQueue()
     status = '200 OK'
     response_headers = [
         ('Content-Type', 'application/json'),
         ('Transfer-Encoding', 'chunked')
     ]
     try:
-        _logger.debug(environ)
         start_response(status, response_headers)
-        return iter(queue.get, None)
+        return queue
     except Exception as ex:
         _logger.exception("removing client from processing", ex)
         ShellProcessor.connections.remove(queue)

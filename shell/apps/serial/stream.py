@@ -161,6 +161,10 @@ class SerialWatcher(object):
                 message = TraumaMessage(p.data)
                 queue.put(message.decode)
             else: _logger.debug(packet)
+
+            # for debug testing
+            #queue.put(HistoryMessage.random(1))
+            #time.sleep(5)
         _logger.info("exited the serial monitor")
 
 
