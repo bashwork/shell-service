@@ -11,6 +11,7 @@ from gevent import pywsgi
 from json import dumps as json_serialize
 from client import ShellClient
 from stream import SerialWatcher
+from twilio.rest import TwilioRestClient
 
 # ----------------------------------------------------------------------------- 
 # logging
@@ -42,9 +43,9 @@ class IterableQueue(Queue):
         ''' Initializes a new instance of the IterableQueue
         and registers this with the processor.
         '''
-        _logger.debug("Registering a client for processing")
         Queue.__init__(self) # Queue is an old style class
         ShellProcessor.connections.append(self)
+        _logger.debug("Registering a client for processing")
 
     def __iter__(self):
         ''' Gets the iterator for this instance.
@@ -57,25 +58,52 @@ class IterableQueue(Queue):
         ''' Close this queue down and unregister it
         from the processor.
         '''
-        _logger.debug("Unregistering a client from processing")
         self.put(None)
         self.task_done()
         ShellProcessor.connections.remove(self)
+        _logger.debug("Unregistering a client from processing")
 
 
 class ShellProcessor(threading.Thread):
     ''' This is the shell message processing service
     ''' 
-    connections = [] # add/removes are atomic, no locking needed
+    connections    = [] # add/removes are atomic, no locking needed
+    twilio_account = 'ACcdc9883ca73b48589cc04e89a48dc16d'
+    twilio_token   = 'f72ffd73326152cdd750a97a18eb766d'
 
     def __init__(self, **kwargs):
         ''' Initializes a new instance of the ShellProcessor
         '''
+        super(ShellProcessor, self).__init__()
         self.halt    = False
         self.watcher = SerialWatcher(kwargs.get('port', None))
         self.client  = ShellClient(kwargs.get('base', None))
+        self.twilio  = TwilioRestClient(self.twilio_account, self.twilio_token)
+        self.__initialize_caches()
+
+    def __initialize_caches(self):
+        ''' Initialize the player cache
+        '''
+        players = self.client.get_all_players()
+        self.player_cache  = dict((player['id'], player) for player in players)
         self.reading_cache = {}
-        super(ShellProcessor, self).__init__()
+
+    def __send_alert_message(self, player):
+        ''' Send an alert message to 
+
+        :param player: The player to send a mesasge to
+        '''
+        player = self.player_cache[player]
+        if (not player.get('contacted', False)) and (len(player['contacts']) > 0):
+            result  = True
+            params  = (player['firstname'], player['lastname'])
+            message = "%s %s experienced a possible tramatic injry, please follow up." % params
+            numbers = [contact['phone'] for contact in player['contacts']]
+            for number in numbers:
+                _logger.info("Sending emergency text to %s", number)
+                sms = self.twilio.sms.messages.create(to=number, from_='4155992671', body=message)
+                result &= (sms.status != "failed")
+            player['contacted'] = result # don't send any more messages if all successful
 
     def __get_reading_today(self, player):
         ''' Checks to see if we have an existing reading for today
@@ -148,11 +176,13 @@ class ShellProcessor(threading.Thread):
         if message['type'] == 'reading':
             if (message['hits'] >= 50) or (message['acceleration'] > 200) or (message['temperature'] > 100):
                 message['status'] = PlayerStatus.Emergency
+                self.__send_alert_message(message['player'])
             elif (message['hits'] >= 25) or (message['acceleration'] > 100):
                 message['status'] = PlayerStatus.Warning
             else: message['status'] = PlayerStatus.Normal
         elif message['type'] == 'trauma': # a trauma will throw the player into an emergency status
             self.__update_player_status(message['player'], PlayerStatus.Emergency)
+            self.__send_alert_message(message['player'])
 
     def __deliver_message(self, message):
         ''' The processing step to deliver new messages to the clients

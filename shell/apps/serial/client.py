@@ -187,6 +187,23 @@ class ShellClient(object):
         '''
         return self.client.get_request('player/%s/trauma/%d' % (player, count))
 
+    def get_all_players(self):
+        ''' Retrieves all the players from the service
+
+        :returns: The collection of all the players
+        '''
+        return self.client.get_request('player/')
+
+    def get_contacts(self, player):
+        ''' Retrieves the contacts for the specified player
+
+        :param player: The player to get the contacts for
+        :returns: The collection of the players contacts
+        '''
+        contacts = self.client.get_request('player/%d/contacts' % player)
+        return None if (len(contacts) == 0) else contacts
+
+
 # ----------------------------------------------------------------------------- 
 # Exported Types
 # ----------------------------------------------------------------------------- 

@@ -149,22 +149,22 @@ class SerialWatcher(object):
             bus and throwing them into the database
         '''
         sys.argv = ['', port or "serial@/dev/ttyUSB0:57600"] # hack, I blame tinyos
-        messages = tinyos.AM()
+        #messages = tinyos.AM()
     
         _logger.info("initialized the serial monitor")
         while not event.is_set():
-            packet = messages.read()
-            if packet and (packet.type == HistoryMessage.Type):
-                message = HistoryMessage(p.data)
-                queue.put(message.decode)
-            elif packet and (packet.type == TraumaMessage.Type):
-                message = TraumaMessage(p.data)
-                queue.put(message.decode)
-            else: _logger.debug(packet)
+            #packet = messages.read()
+            #if packet and (packet.type == HistoryMessage.Type):
+            #    message = HistoryMessage(p.data)
+            #    queue.put(message.decode)
+            #elif packet and (packet.type == TraumaMessage.Type):
+            #    message = TraumaMessage(p.data)
+            #    queue.put(message.decode)
+            #else: _logger.debug(packet)
 
             # for debug testing
-            #queue.put(HistoryMessage.random(1))
-            #time.sleep(5)
+            queue.put(TraumaMessage.random(1))
+            time.sleep(5)
         _logger.info("exited the serial monitor")
 
 
