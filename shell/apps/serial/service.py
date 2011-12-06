@@ -10,7 +10,7 @@ from Queue import Queue
 from gevent import pywsgi
 from json import dumps as json_serialize
 from client import ShellClient
-from stream import SerialWatcher
+from stream import DeviceWatcher
 from twilio.rest import TwilioRestClient
 
 # ----------------------------------------------------------------------------- 
@@ -68,17 +68,15 @@ class ShellProcessor(threading.Thread):
     ''' This is the shell message processing service
     ''' 
     connections    = [] # add/removes are atomic, no locking needed
-    twilio_account = 'ACcdc9883ca73b48589cc04e89a48dc16d'
-    twilio_token   = 'f72ffd73326152cdd750a97a18eb766d'
 
     def __init__(self, **kwargs):
         ''' Initializes a new instance of the ShellProcessor
         '''
         super(ShellProcessor, self).__init__()
-        self.halt    = False
-        self.watcher = SerialWatcher(kwargs.get('port', None))
-        self.client  = ShellClient(kwargs.get('base', None))
-        self.twilio  = TwilioRestClient(self.twilio_account, self.twilio_token)
+        self.halt_event = threading.Event()
+        self.watcher    = DeviceWatcher(kwargs.get('device_port'), kwargs.get('device_type'))
+        self.client     = ShellClient(kwargs.get('service_base'))
+        self.twilio     = TwilioRestClient(kwargs.get('twilio_account'), kwargs.get('twilio_token'))
         self.__initialize_caches()
 
     def __initialize_caches(self):
@@ -194,10 +192,12 @@ class ShellProcessor(threading.Thread):
 
         :param message: The message to process
         '''
-        _logger.debug("delivering message to %d clients", len(ShellProcessor.connections))
-        message = json_serialize(message) + "\r\n"
-        for queue in ShellProcessor.connections:
-            queue.put_nowait(message)
+        client_count = len(ShellProcessor.connections)
+        if client_count > 0: # don't waste time if there are no clients
+            _logger.debug("delivering message to %d clients" % client_count)
+            message = json_serialize(message) + "\r\n"
+            for queue in ShellProcessor.connections:
+                queue.put_nowait(message)
     
     def __update_database(self, message):
         ''' The processing step to update the database
@@ -210,16 +210,18 @@ class ShellProcessor(threading.Thread):
         else: _logger.error("Unknown message: " + str(message))
 
     def stop(self):
-        ''' A cheap way to stop the thread '''
-        self.halt = True
+        ''' Stop the processing service from running '''
+        _logger.info("processing sevice was told to stop")
+        self.halt_event.set()
+        self.watcher.stop()
     
     def run(self):
-        ''' The main processor for new messages
-        '''
+        ''' The main processor for new messages '''
         try:
+            _logger.info("processing sevice starting")
             message_queue = self.watcher.start()
             for message in iter(message_queue.get, None):
-                if self.halt: raise Exception("Stopping")
+                if self.halt_event.is_set(): raise Exception("Stopping")
                 try:
                     _logger.debug(str(message))
                     self.__process_message(message)
@@ -230,7 +232,7 @@ class ShellProcessor(threading.Thread):
                     _logger.exception("error processing message")
         except Exception as ex:
             _logger.exception("exiting the processing thread")
-            self.watcher.stop()
+            self.stop() # just in case...
 
 
 # ----------------------------------------------------------------------------- 

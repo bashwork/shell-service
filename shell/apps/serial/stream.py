@@ -45,10 +45,10 @@ class TinyosHistoryMessage(tinyos.Packet):
         return {
             'player'       : self.id,
             'type'         :'reading',
-            'temperature'  : values[1],
-            'humidity'     : values[2],
-            'acceleration' : values[3] + values[4],
-            'hits'         : values[0],
+            'temperature'  : float(values[1]),
+            'humidity'     : float(values[2]),
+            'acceleration' : float(values[3] + values[4]),
+            'hits'         : int(values[0]),
             'date'         : str(datetime.now()),
         }
 
@@ -92,7 +92,7 @@ class TinyosTraumaMessage(tinyos.Packet):
         return {
             'player'       : self.id,
             'type'         :'trauma',
-            'acceleration' : values[0],
+            'acceleration' : float(values[0]),
             'date'         : str(datetime.now()),
             'conscious'    : True,  # this is validated later
             'comments'     : '',    # this is updated later
@@ -119,7 +119,7 @@ class TinyosWatcher(object):
 
         :param port: The serial port to read on (default serial@/dev/ttyUSB0:57600)
         '''
-        sys.argv = ['', kwargs.get('port', "serial@/dev/ttyUSB0:57600")]
+        sys.argv = ['', kwargs.get('port')]
         self.client = tinyos.AM() # hack, I blame tinyos
 
     def __iter__(self):
@@ -173,7 +173,7 @@ class ArduinoTraumaMessage(object):
         :returns: The parsed message
         '''
         return {
-            'player'       : message['id'],
+            'player'       : int(message['id']),
             'type'         :'trauma',
             'acceleration' : float(message['accel']),
             'date'         : str(datetime.now()),
@@ -195,12 +195,12 @@ class ArduinoHistoryMessage(object):
         :returns: The parsed message
         '''
         return {
-            'player'       : message['id'],
+            'player'       : int(message['id']),
             'type'         :'reading',
             'temperature'  : uniform(97, 100), # the arduino doesn't have this
             'humidity'     : uniform(97, 100), # the arduino doesn't have this
-            'acceleration' : message['accel'],
-            'hits'         : message['hits'],
+            'acceleration' : float(message['accel']),
+            'hits'         : int(message['hits']),
             'date'         : str(datetime.now()),
         }
 
@@ -223,6 +223,7 @@ class ArduinoWatcher(object):
        
         :returns: The iterator instance
         '''
+        self.client.flushInput() # clear backed up data
         return self
 
     def __parse(self, packet):
@@ -232,13 +233,17 @@ class ArduinoWatcher(object):
         :returns: The decoded packet
         '''
         result  = None
+        packet = packet.replace('\r\n', '')
         message = dict(p.split(':') for p in packet.split(','))
         message_type = message.get('type', None)
-        if message_type == ArduinoTraumaMessage.Type:
-            result = ArduinoTraumaMessage.decode(message)
-        elif message_type == ArduinoHistoryMessage:
-            result = ArduinoHistoryMessage.decode(message)
-        else: _logger.debug("invalid message: " + packet)
+
+        try:
+            #_logger.debug("device message: " + packet)
+            if message_type == ArduinoTraumaMessage.Type:
+                result = ArduinoTraumaMessage.decode(message)
+            elif message_type == ArduinoHistoryMessage.Type:
+                result = ArduinoHistoryMessage.decode(message)
+        except Exception: pass #blah for now
         return result
 
     def close(self):
@@ -251,69 +256,77 @@ class ArduinoWatcher(object):
        
        :returns: The next value of the iterator 
         '''
-        packet = self.client.readline()
+        packet = self.client.readline() # technically doesn't read a line...
         return self.__parse(packet)
         
 
 # ----------------------------------------------------------------------------- 
 # Main Runner
 # ----------------------------------------------------------------------------- 
-class SerialWatcher(object):
+class DeviceWatcher(object):
     
     def __init__(self, port=None, watcher='arduino'):
         ''' Initialize a new instance of the class
         '''
-        self.queue = Queue()
-        self.event = Event()
-        arguments = (self.event, self.queue, port, watcher)
+        self.ipc_queue  = Queue()
+        self.halt_event = Event()
+        arguments = (self.halt_event, self.ipc_queue, port, watcher)
         self.process = Process(target=self.__watcher, args=arguments)
+        self.process.daemon = True
 
     def start(self):
         ''' Start the processor running
 
         :returns: The intermessage queue to read from
         '''
-        _logger.info("starting the serial monitor")
-        self.event.clear()
+        _logger.info("starting the device monitor")
+        self.halt_event.clear()
         self.process.start()
-        return self.queue
+        return self.ipc_queue
 
     def stop(self):
         ''' Stop the processor from running
         '''
-        _logger.info("stoping the serial monitor")
-        self.event.set()
-        self.process.join(1)
+        _logger.info("stopping the device monitor")
+        self.halt_event.set()
+        self.process.join(5)
         if self.process.is_alive():
+            _logger.info("force stopping the device monitor")
             self.process.terminate()
 
     @classmethod
-    def __watcher(cls, event, queue, port, watcher):
+    def __watcher(cls, halt_event, ipc_queue, port, watcher):
         ''' The main runner for pulling messages off the serial
             bus and throwing them into the database
         '''
-        _logger.info("initialized the serial monitor")
         if watcher == 'arduino':
-            client = ArduinoWatcher(port=port, timeout=5)
+            client = ArduinoWatcher(port=port, baudrate=9600, timeout=5)
         else: client = TinyosWatcher(port)
-    
-        while not event.is_set():
+        _logger.info("device monitor initialized")
+
+        try: 
             for message in client:
-                if message: queue.put(message)
+                if halt_event.is_set():
+                    _logger.info("device monitor was told to stop")
+                    break # someone told us to stop
+                if message: ipc_queue.put(message)
+        except Exception:
+            _logger.exception("something bad happend in the device monitor")
+            ipc_queue.put(None) # we are broke, force an exit
         client.close()
-        _logger.info("exited the serial monitor")
+        _logger.info("device monitor exiting")
 
 
 # ----------------------------------------------------------------------------- 
 # Exported Types
 # ----------------------------------------------------------------------------- 
-__all__ = ['SerialWatcher']
+__all__ = ['DeviceWatcher']
 
 # ----------------------------------------------------------------------------- 
 # Test Runner
 # ----------------------------------------------------------------------------- 
 if __name__ == "__main__":
-    watcher = SerialWatcher()
+    watcher = DeviceWatcher()
 
     def signal_handler(signal, frame):
         ''' Make sure we can clean up correctly '''

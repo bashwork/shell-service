@@ -20,13 +20,13 @@ class RestClient(object):
     the httplib2 that provides the common rest verbs.
     '''
 
-    def __init__(self, base=None):
+    def __init__(self, base):
         ''' Initializes a new instance of the RestClient
 
         :param base: The base uri to store for all requests
         '''
-        self.base = base or "http://localhost/"
-        self.client = http_client(".shell_cache")
+        self.base    = base
+        self.client  = http_client(".shell_cache")
         self.headers = {
             'content-type' : 'application/x-www-form-urlencoded',
         }
@@ -97,10 +97,10 @@ class ShellClient(object):
     api for use with the processing service.
     '''
 
-    def __init__(self, base=None):
+    def __init__(self, base):
         ''' Initialize a new instance of the shell client
         '''
-        self.client = RestClient(base or "http://radiant-meadow-2958.herokuapp.com/api/v1/")
+        self.client = RestClient(base)
 
     def generate_empty_reading(self, player):
         ''' A helper method to generate an empty reading for
