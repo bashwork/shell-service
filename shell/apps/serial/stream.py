@@ -4,6 +4,7 @@ A simple serial logger for the shell firmware
 messages.
 '''
 import sys, time, signal
+from serial import Serial
 from datetime import datetime
 from random import randint, uniform
 from multiprocessing import Process, Queue, Event 
@@ -17,9 +18,9 @@ _logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------- 
-# Classes
+# Tinyos Serial Watcher
 # ----------------------------------------------------------------------------- 
-class HistoryMessage(tinyos.Packet):
+class TinyosHistoryMessage(tinyos.Packet):
 
     Type = 0x93
 
@@ -40,14 +41,14 @@ class HistoryMessage(tinyos.Packet):
 
         :returns: The parsed data packet as a dict
         '''
-        values = [(i<<8 | j) for (i,j) in zip(self.readings[::2], self.readings[1::4])]
+        values = [(i<<8 | j) for (i,j) in zip(self.readings[::2], self.readings[1::10])]
         return {
             'player'       : self.id,
             'type'         :'reading',
-            'temperature'  : 97.5,
-            'humidity'     : 97.5,
-            'acceleration' : values[0],
-            'hits'         : values[1],
+            'temperature'  : values[1],
+            'humidity'     : values[2],
+            'acceleration' : values[3] + values[4],
+            'hits'         : values[0],
             'date'         : str(datetime.now()),
         }
 
@@ -66,7 +67,7 @@ class HistoryMessage(tinyos.Packet):
         }
 
 
-class TraumaMessage(tinyos.Packet):
+class TinyosTraumaMessage(tinyos.Packet):
 
     Type = 0x94
 
@@ -111,17 +112,160 @@ class TraumaMessage(tinyos.Packet):
         }
 
 
+class TinyosWatcher(object):
+
+    def __init__(self, *args, **kwargs):
+        ''' Initializes a new instance of the TinyosWatcher
+
+        :param port: The serial port to read on (default serial@/dev/ttyUSB0:57600)
+        '''
+        sys.argv = ['', kwargs.get('port', "serial@/dev/ttyUSB0:57600")]
+        self.client = tinyos.AM() # hack, I blame tinyos
+
+    def __iter__(self):
+        ''' Returns an instance of the current iterator
+       
+        :returns: The iterator instance
+        '''
+        return self
+
+    def __parse(self, packet):
+        ''' A helper method to parse the packet
+
+        :param packet: The packet to decode
+        :returns: The decoded packet
+        '''
+        message = None
+        if packet and (packet.type == TinyosHistoryMessage.Type):
+            message = TinyosHistoryMessage(packet.data).decode()
+        elif packet and (packet.type == TinyosTraumaMessage.Type):
+            message = TinyosTraumaMessage(packet.data).decode()
+        else: _logger.debug(packet)
+        return message
+
+    def close(self):
+        ''' Close the underlying watcher handle
+        '''
+        pass
+
+    def next(self):
+        ''' Returns the next message from the iterator
+       
+        :returns: The next value of the iterator 
+        '''
+        packet  = self.client.read()
+        return self.__parse(packet)
+
+# ----------------------------------------------------------------------------- 
+# Arduino serial watcher
+# ----------------------------------------------------------------------------- 
+class ArduinoTraumaMessage(object):
+    ''' Represents an aduino trauma message
+    '''
+
+    Type = 'trauma'
+
+    @classmethod
+    def decode(cls, message):
+        ''' Specifically parse a trauma message
+
+        :param message: The message to populate with
+        :returns: The parsed message
+        '''
+        return {
+            'player'       : message['id'],
+            'type'         :'trauma',
+            'acceleration' : float(message['accel']),
+            'date'         : str(datetime.now()),
+            'conscious'    : True,
+            'comments'     : '',
+        }
+
+class ArduinoHistoryMessage(object):
+    ''' Represents an aduino history message
+    '''
+
+    Type = 'reading'
+
+    @classmethod
+    def decode(cls, message):
+        ''' Specifically parse a reading message
+
+        :param message: The message to populate with
+        :returns: The parsed message
+        '''
+        return {
+            'player'       : message['id'],
+            'type'         :'reading',
+            'temperature'  : uniform(97, 100), # the arduino doesn't have this
+            'humidity'     : uniform(97, 100), # the arduino doesn't have this
+            'acceleration' : message['accel'],
+            'hits'         : message['hits'],
+            'date'         : str(datetime.now()),
+        }
+
+
+class ArduinoWatcher(object):
+    ''' A simple iterator wrapper around reading from an
+    arduino. For this we simply use a serial line reader.
+    '''
+
+    def __init__(self, *args, **kwargs):
+        ''' Initializes a new instance of the TinyosWatcher
+
+        :param port: The serial port to read from
+        :param baudrate: The baudrate to read with
+        '''
+        self.client = Serial(**kwargs)
+
+    def __iter__(self):
+        ''' Returns an instance of the current iterator
+       
+        :returns: The iterator instance
+        '''
+        return self
+
+    def __parse(self, packet):
+        ''' A helper method to parse the packet
+
+        :param packet: The packet to decode
+        :returns: The decoded packet
+        '''
+        result  = None
+        message = dict(p.split(':') for p in packet.split(','))
+        message_type = message.get('type', None)
+        if message_type == ArduinoTraumaMessage.Type:
+            result = ArduinoTraumaMessage.decode(message)
+        elif message_type == ArduinoHistoryMessage:
+            result = ArduinoHistoryMessage.decode(message)
+        else: _logger.debug("invalid message: " + packet)
+        return result
+
+    def close(self):
+        ''' Close the underlying watcher handle
+        '''
+        self.client.close()
+
+    def next(self):
+        ''' Returns the next value from the iterator
+       
+       :returns: The next value of the iterator 
+        '''
+        packet = self.client.readline()
+        return self.__parse(packet)
+        
+
 # ----------------------------------------------------------------------------- 
 # Main Runner
 # ----------------------------------------------------------------------------- 
 class SerialWatcher(object):
     
-    def __init__(self, port=None):
+    def __init__(self, port=None, watcher='arduino'):
         ''' Initialize a new instance of the class
         '''
         self.queue = Queue()
         self.event = Event()
-        arguments = (self.event, self.queue, port)
+        arguments = (self.event, self.queue, port, watcher)
         self.process = Process(target=self.__watcher, args=arguments)
 
     def start(self):
@@ -144,27 +288,19 @@ class SerialWatcher(object):
             self.process.terminate()
 
     @classmethod
-    def __watcher(cls, event, queue, port):
+    def __watcher(cls, event, queue, port, watcher):
         ''' The main runner for pulling messages off the serial
             bus and throwing them into the database
         '''
-        sys.argv = ['', port or "serial@/dev/ttyUSB0:57600"] # hack, I blame tinyos
-        #messages = tinyos.AM()
-    
         _logger.info("initialized the serial monitor")
+        if watcher == 'arduino':
+            client = ArduinoWatcher(port=port, timeout=5)
+        else: client = TinyosWatcher(port)
+    
         while not event.is_set():
-            #packet = messages.read()
-            #if packet and (packet.type == HistoryMessage.Type):
-            #    message = HistoryMessage(p.data)
-            #    queue.put(message.decode)
-            #elif packet and (packet.type == TraumaMessage.Type):
-            #    message = TraumaMessage(p.data)
-            #    queue.put(message.decode)
-            #else: _logger.debug(packet)
-
-            # for debug testing
-            queue.put(TraumaMessage.random(1))
-            time.sleep(5)
+            for message in client:
+                if message: queue.put(message)
+        client.close()
         _logger.info("exited the serial monitor")
 
 
