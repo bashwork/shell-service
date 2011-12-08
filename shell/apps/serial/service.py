@@ -95,7 +95,7 @@ class ShellProcessor(threading.Thread):
         if (not player.get('contacted', False)) and (len(player['contacts']) > 0):
             result  = True
             params  = (player['firstname'], player['lastname'])
-            message = "%s %s experienced a possible tramatic injry, please follow up." % params
+            message = "%s %s experienced a possible tramatic injury, please follow up." % params
             numbers = [contact['phone'] for contact in player['contacts']]
             for number in numbers:
                 _logger.info("Sending emergency text to %s", number)

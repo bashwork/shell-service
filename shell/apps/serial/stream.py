@@ -326,7 +326,7 @@ __all__ = ['DeviceWatcher']
 # Test Runner
 # ----------------------------------------------------------------------------- 
 if __name__ == "__main__":
-    watcher = DeviceWatcher()
+    watcher = DeviceWatcher(port='/dev/ttyUSB0', watcher='arduino')
 
     def signal_handler(signal, frame):
         ''' Make sure we can clean up correctly '''

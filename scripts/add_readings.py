@@ -3,7 +3,7 @@ import httplib2
 from random import randint, uniform
 
 def generate_data(id, day):
-    date = "&date=2010-10-%02d 12:12:12" % day
+    date = "&date=2011-11-%02d 12:12:12" % day
     format = "player=%d&hits=%d&temperature=%.2f&humidity=%.2f&acceleration=%.2f&status=%d" + date
     return format % (id, randint(0,100), uniform(97, 102), uniform(0, 100), uniform(10, 100), randint(0,3))
 

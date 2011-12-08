@@ -95,6 +95,13 @@ Where there is this code that contains the following:
 http://code.google.com/p/shel-platform/
 
 ------------------------------------------------------------
+Hey How do I run this shit
+------------------------------------------------------------
+
+For the frontend
+gunicorn_django -b 0.0.0.0:8000
+
+------------------------------------------------------------
 Can I steal some of this
 ------------------------------------------------------------
 
