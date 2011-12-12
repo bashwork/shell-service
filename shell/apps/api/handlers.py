@@ -91,7 +91,7 @@ class ReadingHandler(BaseHandler):
             readings = Reading.objects.filter(id=id)
         elif pid != None:
             player = Reading.objects.filter(player__id=pid)
-            readings = player.order_by('date')[:count]
+            readings = player.order_by('-date')[:count]
         else: readings = Readings.objects.all()[:count]
         return readings
 
@@ -126,7 +126,7 @@ class TraumaHandler(BaseHandler):
             readings = Trauma.objects.filter(id=id)
         elif pid != None:
             player = Trauma.objects.filter(player__id=pid)
-            readings = player.order_by('date')[:count]
+            readings = player.order_by('-date')[:count]
         else: readings = Trauma.objects.all()[:count]
         return readings
 
